@@ -1112,6 +1112,20 @@ public final class ChordImpl implements Chord, Report, AsynChord {
 	
 	// TODO: implement this function in TTP 
 	//send broadcast to all nodes in finger table
+        /*
+        Jeder Knoten leitet ein Broadcast-Paket mit RangeHash X an alle ihm 
+        bekannten Knoten (mit aktualisiertem Range) zwischen seiner ID und X weiter.
+        Im Detail:
+        1. Der Startknoten sendet das Broadcast-Paket an alle (unterschiedlichen) Knoten seiner
+        Finger Table, wobei der den jeweils darauffolgenden Finger-Table Eintrag in das
+        RangeHash - Feld notiert.
+        2. Der Empfänger eines Broadcast-Pakets stellt dieses seiner Applikation zu und leitet es
+        an alle Knoten weiter, welche gemäß seiner Finger Table zwischen seiner eigenen ID
+        und dem RangeHash liegen. Dabei trägt er analog den jeweils darauffolgenden Finger
+        Table Eintrag in das RangeHash-Feld ein.
+        3. Liegen keine weiteren Knoten mehr zwischen der eigenen und der RangeHash ID,
+        terminiert das rekursive Weiterleiten.
+        */
 	@Override
 	public void broadcast (ID target, Boolean hit) {
 		this.logger.debug("App called broadcast");

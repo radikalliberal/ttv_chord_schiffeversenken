@@ -250,7 +250,6 @@ public final class ThreadProxy extends Proxy {
 		Node[] proxies = new Node[nodes.size()];
 		try {
 			int currentIndex = 0;
-			// TODO Document why ThreadProxy instead of Node
 			for (Iterator<Node> i = nodes.iterator(); i.hasNext();) {
 				Object o = i.next();
 				ThreadProxy current = (ThreadProxy) o;
@@ -344,7 +343,6 @@ public final class ThreadProxy extends Proxy {
 
 	@Override
 	public void disconnect() {
-		// TODO Auto-generated method stub
 		
 	}
 

@@ -394,7 +394,7 @@ final class RequestHandler extends Thread implements EndpointStateListener {
 	 * method depends on the state of the endpoint.
 	 * 
 	 * @param method
-	 *            The name of the method to invoke. TODO: change this to another
+	 *            The name of the method to invoke.
 	 *            type.
 	 */
 	private void waitForMethod(String method) {

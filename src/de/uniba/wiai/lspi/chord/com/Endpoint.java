@@ -103,7 +103,6 @@ public abstract class Endpoint {
 	 */
 	protected static final Map<URL, Endpoint> endpoints = new HashMap<URL, Endpoint>();
 
-	// TODO: Create enum for state.
 	/**
 	 * Integer representation of state.
 	 */
@@ -203,7 +202,6 @@ public abstract class Endpoint {
 		this.listeners.remove(listener);
 	}
 
-	// TODO rename!!
 	/**
 	 * Method to notify listeners about a change in state of this endpoint.
 	 * 
@@ -250,7 +248,7 @@ public abstract class Endpoint {
 
 	/**
 	 * Tell this endpoint that it can listen to incoming messages from other
-	 * chord nodes. TODO: This method may throw an exception when starting to
+	 * chord nodes. 
 	 * listen for incoming connections.
 	 */
 	public final void listen() {
@@ -264,7 +262,6 @@ public abstract class Endpoint {
 	 * make it possible for other chord nodes to connect to the node on that
 	 * this endpoint invocates methods.
 	 * 
-	 * TODO: This method may throw an exception when starting to listen for
 	 * incoming connections.
 	 */
 	protected abstract void openConnections();

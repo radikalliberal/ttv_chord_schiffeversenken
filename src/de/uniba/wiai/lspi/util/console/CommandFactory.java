@@ -135,10 +135,6 @@ public class CommandFactory {
 		Command com = null;
 		try {
 			String command = CommandParser.parse(commandLine);
-			/*
-			 * TODO: check if parser generated with javacc can be made compliant
-			 * to Java 5.0
-			 */
 			Map<String, String> parameters = CommandParser
 					.parseParams(commandLine);
 

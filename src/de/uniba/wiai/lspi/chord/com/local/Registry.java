@@ -63,14 +63,11 @@ public final class Registry {
 	 */
 	private Map<URL, ThreadEndpoint> registeredEndpoints = new HashMap<URL, ThreadEndpoint>();
 
-	// TODO Hashtable for synchronization?
-
 	/**
 	 * Stores references to the proxies in use by nodes. Key:   {@link String}  (name of node), Value:   {@link List}  of   {@link ThreadProxy   proxies}.
 	 */
 	private Map<URL, List<ThreadProxy>> proxiesInUse = new HashMap<URL, List<ThreadProxy>>();
 
-	// TODO Hashtable for synchronization?
 
 	/**
 	 * Create an instance of Reqistry.

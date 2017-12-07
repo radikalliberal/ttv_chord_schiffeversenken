@@ -429,7 +429,7 @@ public final class SocketProxy extends Proxy implements Runnable {
 				logger.debug("Waking up thread!");
 				waitingThread.wakeUp();
 			} else {
-				// TODO what else? why 'else' anyway?
+				
 			}
 		}
 	}

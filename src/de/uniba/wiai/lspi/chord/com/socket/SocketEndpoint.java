@@ -126,7 +126,6 @@ public final class SocketEndpoint extends Endpoint implements Runnable {
 						+ "started. ");
 			}
 		} catch (IOException e) {
-			/* TODO: change type of exception */
 			throw new RuntimeException(
 					"SocketEndpoint could not listen on port "
 							+ this.url.getPort() + " " + e.getMessage());
@@ -232,7 +231,6 @@ public final class SocketEndpoint extends Endpoint implements Runnable {
 				} else {
 					/* Socket has been closed */
 				}
-				/* TODO: go on or notify some one? */
 			}
 		}
 		SocketEndpoint.logger.info("Listener thread stopped.");

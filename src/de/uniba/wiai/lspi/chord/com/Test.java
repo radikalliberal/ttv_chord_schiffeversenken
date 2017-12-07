@@ -56,7 +56,6 @@ public class Test {
 				ep.acceptEntries();
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
 
 			NodeImpl node = new NodeImpl(URL1);
 			Endpoint ep = Endpoint.createEndpoint(node, node.nodeURL);
@@ -154,7 +153,6 @@ public class Test {
 			try {
 				this.nodeURL = new URL(url);
 			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.exit(-1);
 			}
@@ -163,7 +161,6 @@ public class Test {
 
 		@Override
 		public void disconnect() {
-			// TODO Auto-generated method stub
 
 		}
 
@@ -175,21 +172,18 @@ public class Test {
 		@Override
 		public void insertEntry(Entry entryToInsert)
 				throws CommunicationException {
-			// TODO Auto-generated method stub
 
 		}
 
 		@Override
 		public void insertReplicas(Set<Entry> entries)
 				throws CommunicationException {
-			// TODO Auto-generated method stub
 
 		}
 
 		@Override
 		public void leavesNetwork(Node predecessor)
 				throws CommunicationException {
-			// TODO Auto-generated method stub
 
 		}
 
@@ -208,21 +202,18 @@ public class Test {
 
 		@Override
 		public void ping() throws CommunicationException {
-			// TODO Auto-generated method stub
 
 		}
 
 		@Override
 		public void removeEntry(Entry entryToRemove)
 				throws CommunicationException {
-			// TODO Auto-generated method stub
 
 		}
 
 		@Override
 		public void removeReplicas(ID sendingNode, Set<Entry> replicasToRemove)
 				throws CommunicationException {
-			// TODO Auto-generated method stub
 
 		}
 

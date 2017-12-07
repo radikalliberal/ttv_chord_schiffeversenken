@@ -54,7 +54,7 @@ import de.uniba.wiai.lspi.util.logging.Logger;
  * that depend on each other. This would also apply to the internal Set<Entry>
  * if it were not only used in the same synchronized statements for entries,
  * which than functions as a synchronization point. It must also be locked by a
- * synchronized statement, when iterating over it. TODO: What about fairness?
+ * synchronized statement, when iterating over it.
  * sven
  */
 final class Entries {

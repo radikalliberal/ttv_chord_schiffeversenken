@@ -35,7 +35,6 @@ package de.uniba.wiai.lspi.chord.com.socket;
  * {@link de.uniba.wiai.lspi.chord.com.Node} change. 
  * 
  * <p>
- * TODO: change to enum type !
  * </p>
  * 
  * @author sven

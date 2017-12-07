@@ -28,6 +28,7 @@ public class Main {
 		 Chord chord = new ChordImpl();
 		 Callbacks cb = new Callbacks();
 		 try {
+			 // NotifyCallback bekannt machen
 			 chord.setCallback(cb);
 			 chord.join(localURL , bootstrapURL);
 		 } catch (ServiceException e) {

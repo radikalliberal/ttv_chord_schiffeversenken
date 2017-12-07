@@ -679,7 +679,7 @@ final class References {
 	 * Added by sven on 21.03.2006. This data strucutre is supposed to work with
 	 * remote references therefore it must be instances of Proxy. This method is
 	 * used in every method that adds a new reference to this to check that it
-	 * is an instance of Proxy. -> TODO: Consider to change type of all Nodes
+	 * is an instance of Proxy.
 	 * within this data structure to type Proxy!!!!
 	 * 
 	 * @param node

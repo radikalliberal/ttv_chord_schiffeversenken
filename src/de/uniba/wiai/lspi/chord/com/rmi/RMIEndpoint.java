@@ -87,6 +87,7 @@ public final class RMIEndpoint extends Endpoint implements RemoteNode {
 		this.setState(ACCEPT_ENTRIES);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void openConnections() {
 		try {

@@ -432,9 +432,10 @@ public final class NodeImpl extends Node {
 		if (this.logger.isEnabledFor(DEBUG)) {
 			this.logger.debug(" Send broadcast message");
 		}
+		ID predecessor = this.impl.getPredecessorID();
 		ID range = info.getRange();
 		ID target = info.getTarget();
-		ID surce = info.getSource();
+		ID source = info.getSource();
 		//sende an ale Einträge in der Fingetable die zwischen meiner ID und Range sind
 		Node node = null;
 		Node lastnode = null;
@@ -442,11 +443,24 @@ public final class NodeImpl extends Node {
 		for (int i = 0; i < nodelist.size(); i++) {
 			lastnode = node;
 			node = nodelist.get(i);
-			if (true) { // ID kleiner range
-				node.getNodeID();
+			if(range.compareTo(this.getNodeID())< 0) {
+				if(node.getNodeID().compareTo(this.getNodeID()) > 0) {
+					System.out.print("Boradcast weitergeleitet");
+				} else {
+					if(node.getNodeID().compareTo(range) < 0) {
+						System.out.print("Boradcast weitergeleitet");
+					}
+				}
+				
+				//node.broadcast(new Broadcast(new ));
+			} else {
+				if(node.getNodeID().compareTo(range) < 0) {
+					System.out.print("Boradcast weitergeleitet");
+				}
 			}
+			
 		}
-		this.impl.broadcast(, );
+		
 		
 		// finally inform application
 		if (this.notifyCallback != null) {

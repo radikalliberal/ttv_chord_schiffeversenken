@@ -38,8 +38,10 @@ import java.io.PrintStream;
 
 import de.uniba.wiai.lspi.util.console.ConsoleException;
 import de.uniba.wiai.lspi.chord.com.local.Registry;
+import de.uniba.wiai.lspi.chord.data.ID;
 import de.uniba.wiai.lspi.chord.data.URL;
 import de.uniba.wiai.lspi.chord.service.Chord;
+import de.uniba.wiai.lspi.chord.service.NotifyCallback;
 import de.uniba.wiai.lspi.chord.service.ServiceException;
 import de.uniba.wiai.lspi.chord.service.impl.ChordImpl;
 //import de.uniba.wiai.lspi.chord.service.impl.TaskExecutor;
@@ -127,6 +129,18 @@ public class CreateNodes extends de.uniba.wiai.lspi.util.console.Command {
 //                node = ChordImpl.createChordNode(executor);
 //            } else {
                 node = new ChordImpl();
+                node.setCallback(new NotifyCallback() {
+					
+					@Override
+					public void retrieved(ID target) {
+						System.out.print("retrieve");		
+					}
+					
+					@Override
+					public void broadcast(ID source, ID target, Boolean hit) {
+						System.out.print("broadcast");						
+					}
+				});
 //            }
             try {
                 URL url = new URL(URL.KNOWN_PROTOCOLS.get(URL.LOCAL_PROTOCOL) + "://" + names.get(0) + "/");

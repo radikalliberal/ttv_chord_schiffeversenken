@@ -438,34 +438,42 @@ public final class NodeImpl extends Node {
 		ID source = info.getSource();
 		//sende an ale Einträge in der Fingetable die zwischen meiner ID und Range sind
 		Node node = null;
-		Node lastnode = null;
-		List<Node> nodelist = this.references.getFingerTableEntries();
-		for (int i = 0; i < nodelist.size(); i++) {
-			lastnode = node;
-			node = nodelist.get(i);
-			if(range.compareTo(this.getNodeID())< 0) {
-				if(node.getNodeID().compareTo(this.getNodeID()) > 0) {
-					System.out.print("Boradcast weitergeleitet");
+		List<Node> fingertable = this.references.getFingerTableEntries();
+		for (int i = 0; i < fingertable.size(); i++) {
+			node = fingertable.get(i);
+			if(isInInterval(range, node)) {
+				// Wenn der nächste Finger-table-Eintrag größer ist als die Range wird die initiale range genutzt
+				if(this.isInInterval(range, fingertable.get(i+1))) {
+					info.setRange(fingertable.get(i+1).getNodeID());
 				} else {
-					if(node.getNodeID().compareTo(range) < 0) {
-						System.out.print("Boradcast weitergeleitet");
-					}
+					info.setRange(range);
 				}
 				
-				//node.broadcast(new Broadcast(new ));
-			} else {
-				if(node.getNodeID().compareTo(range) < 0) {
-					System.out.print("Boradcast weitergeleitet");
-				}
+				this.broadcast(info);
 			}
-			
 		}
-		
 		
 		// finally inform application
 		if (this.notifyCallback != null) {
 			this.notifyCallback.broadcast(info.getSource(), info.getTarget(), info.getHit());
 		}
+	}
+
+	private boolean isInInterval(ID range, Node node) throws CommunicationException {
+		if(range.compareTo(this.getNodeID())< 0) {
+			if(node.getNodeID().compareTo(this.getNodeID()) > 0) {
+				return true;
+			} else {
+				if(node.getNodeID().compareTo(range) < 0) {
+					return true;
+				}
+			}
+		} else {
+			if(node.getNodeID().compareTo(range) < 0) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

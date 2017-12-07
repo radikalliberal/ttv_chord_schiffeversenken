@@ -115,7 +115,7 @@ public final class NodeImpl extends Node {
 	 */
 	NodeImpl(ChordImpl impl, ID nodeID, URL nodeURL, NotifyCallback nodeCallback, References references,
 			Entries entries) {
-
+		
 		if (impl == null || nodeID == null || nodeURL == null
 				|| references == null || entries == null || nodeCallback == null) {
 			throw new IllegalArgumentException(

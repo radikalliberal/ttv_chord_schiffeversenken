@@ -31,6 +31,10 @@ public final class Broadcast implements Serializable {
 		return this.range;
 	}
 	
+	public void setRange(ID new_range) {
+		this.range = new_range;
+	}
+	
 	public ID getSource () {
 		return this.source;
 	}

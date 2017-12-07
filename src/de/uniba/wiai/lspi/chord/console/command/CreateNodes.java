@@ -179,6 +179,18 @@ public class CreateNodes extends de.uniba.wiai.lspi.util.console.Command {
 //                        node = ChordImpl.createChordNode(executor);
 //                    } else {
                         node = new ChordImpl();
+                        node.setCallback(new NotifyCallback() {
+        					
+        					@Override
+        					public void retrieved(ID target) {
+        						System.out.print("retrieve");		
+        					}
+        					
+        					@Override
+        					public void broadcast(ID source, ID target, Boolean hit) {
+        						System.out.print("broadcast");						
+        					}
+        				});
 //					 }
                     try {
                      

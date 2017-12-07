@@ -432,6 +432,21 @@ public final class NodeImpl extends Node {
 		if (this.logger.isEnabledFor(DEBUG)) {
 			this.logger.debug(" Send broadcast message");
 		}
+		ID range = info.getRange();
+		ID target = info.getTarget();
+		ID surce = info.getSource();
+		//sende an ale Einträge in der Fingetable die zwischen meiner ID und Range sind
+		Node node = null;
+		Node lastnode = null;
+		List<Node> nodelist = this.references.getFingerTableEntries();
+		for (int i = 0; i < nodelist.size(); i++) {
+			lastnode = node;
+			node = nodelist.get(i);
+			if (true) { // ID kleiner range
+				node.getNodeID();
+			}
+		}
+		this.impl.broadcast(, );
 		
 		// finally inform application
 		if (this.notifyCallback != null) {

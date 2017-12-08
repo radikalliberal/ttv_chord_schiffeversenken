@@ -429,9 +429,6 @@ public final class NodeImpl extends Node {
 	// TODO: implement this function in TTP
 	@Override
 	public final void broadcast(Broadcast info) throws CommunicationException {
-		if (this.logger.isEnabledFor(DEBUG)) {
-			this.logger.debug(" Send broadcast message");
-		}
 		ID predecessor = this.impl.getPredecessorID();
 		ID range = info.getRange();
 		ID target = info.getTarget();
@@ -441,15 +438,24 @@ public final class NodeImpl extends Node {
 		List<Node> fingertable = this.references.getFingerTableEntries();
 		for (int i = 0; i < fingertable.size(); i++) {
 			node = fingertable.get(i);
-			if(isInInterval(range, node)) {
-				// Wenn der nächste Finger-table-Eintrag größer ist als die Range wird die initiale range genutzt
-				if(this.isInInterval(range, fingertable.get(i+1))) {
-					info.setRange(fingertable.get(i+1).getNodeID());
-				} else {
-					info.setRange(range);
+			if(this.getNodeID().isInInterval(source, range)) {
+				if(node.getNodeID().isInInterval(this.getNodeID(), range)) {
+					// Wenn der nächste Finger-table-Eintrag größer ist als die Range wird die initiale range genutzt
+					if(i+1 < fingertable.size() && fingertable.get(i+1).getNodeID().isInInterval(this.getNodeID(), range)) {
+						info.setRange(fingertable.get(i+1).getNodeID());
+					} else {
+						info.setRange(range);
+					}
+	
+					if (this.logger.isEnabledFor(DEBUG)) {
+						this.logger.debug("sending broadcast message to " + info.getTarget());
+					}
+					this.broadcast(info);
 				}
 				
-				this.broadcast(info);
+			}
+			if (this.logger.isEnabledFor(DEBUG)) {
+				this.logger.debug("Node " + this.getNodeID().toString() + " war nicht im Intervall und hat kein broadcast gesendet");
 			}
 		}
 		
@@ -457,23 +463,6 @@ public final class NodeImpl extends Node {
 		if (this.notifyCallback != null) {
 			this.notifyCallback.broadcast(info.getSource(), info.getTarget(), info.getHit());
 		}
-	}
-
-	private boolean isInInterval(ID range, Node node) throws CommunicationException {
-		if(range.compareTo(this.getNodeID())< 0) {
-			if(node.getNodeID().compareTo(this.getNodeID()) > 0) {
-				return true;
-			} else {
-				if(node.getNodeID().compareTo(range) < 0) {
-					return true;
-				}
-			}
-		} else {
-			if(node.getNodeID().compareTo(range) < 0) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 }

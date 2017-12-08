@@ -582,6 +582,7 @@ public final class SocketProxy extends Proxy implements Runnable {
 	 * @return List of references for the node invoking this method. See
 	 *         {@link Node#notify(Node)}.
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Node> notify(Node potentialPredecessor)
 			throws CommunicationException {
 		this.makeSocketAvailable();
@@ -832,6 +833,7 @@ public final class SocketProxy extends Proxy implements Runnable {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public Set<Entry> retrieveEntries(ID id) throws CommunicationException {
 		this.makeSocketAvailable();
 

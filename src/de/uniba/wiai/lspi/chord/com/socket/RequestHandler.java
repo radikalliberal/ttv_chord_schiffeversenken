@@ -287,6 +287,7 @@ final class RequestHandler extends Thread implements EndpointStateListener {
 	 *         method is void.
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	Serializable invokeMethod(int methodType, Serializable[] parameters)
 			throws Exception {
 

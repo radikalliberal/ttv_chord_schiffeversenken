@@ -87,7 +87,6 @@ public final class RMIEndpoint extends Endpoint implements RemoteNode {
 		this.setState(ACCEPT_ENTRIES);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	protected void openConnections() {
 		try {
@@ -96,6 +95,7 @@ public final class RMIEndpoint extends Endpoint implements RemoteNode {
 			}
 			//Remote remoteRef;
 			remoteNode = (RemoteNode) UnicastRemoteObject.exportObject(this);
+			System.out.println(remoteNode.toString());
 			registry.bind(NAME_IN_REGISTRY + this.url.toString(), remoteNode);
 			this.setState(LISTENING);
 		} catch (RemoteException e) {

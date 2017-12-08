@@ -28,8 +28,10 @@
 
 package de.uniba.wiai.lspi.chord.console.command;
 
+import de.uniba.wiai.lspi.chord.data.ID;
 import de.uniba.wiai.lspi.chord.data.URL;
 import de.uniba.wiai.lspi.chord.service.Chord;
+import de.uniba.wiai.lspi.chord.service.NotifyCallback;
 import de.uniba.wiai.lspi.chord.service.impl.ChordImpl;
 
 /**
@@ -82,6 +84,17 @@ public final class RemoteChordNetworkAccess {
 			throw new Exception("Already joined chord network!");
 		}
 		this.chordInstance = new ChordImpl();
+		this.chordInstance.setCallback(new NotifyCallback() {
+			@Override
+			public void retrieved(ID target) {
+				System.out.print("retrieve");		
+			}
+			
+			@Override
+			public void broadcast(ID source, ID target, Boolean hit) {
+				System.out.print("broadcast");						
+			}
+		});
 		URL acceptIncomingConnections = null;
 		try {
                         //determine how to obtain ip-address on linux system. see bug 1510537. sven
@@ -100,6 +113,7 @@ public final class RemoteChordNetworkAccess {
 		}
 		try {
 			if (bootstrapURL == null) {
+				
 				this.chordInstance.create(acceptIncomingConnections);
 			} else {
 				this.chordInstance

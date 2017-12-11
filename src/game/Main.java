@@ -30,7 +30,7 @@ public class Main {
 			}
 			 URL bootstrapURL = null;
 			 try {
-				 bootstrapURL = new URL ("ocrmi://192.168.2.102:4242/"); // Diese Url wird vom Server vorgegeben
+				 bootstrapURL = new URL ("ocrmi://127.0.1.1:4242/"); // Diese Url wird vom Server vorgegeben
 			 } catch ( MalformedURLException e ) {
 				 throw new RuntimeException ( e ) ;
 			 }
@@ -47,18 +47,18 @@ public class Main {
 			 }
 		}
 		for(int i = 0; i < npcs.size(); i++) {
-			/* Hier schauen wir nach welche ID wir haben und für welche untere ID 
-			 * wir noch zuständig sind, das kann sich ändern wenn noch jmd joint. 
-			 * Muss dann also nochmals ausgeführt werden.*/
+			/* Hier schauen wir nach welche ID wir haben und fÃ¼r welche untere ID 
+			 * wir noch zustÃ¤ndig sind, das kann sich ï¿½ndern wenn noch jmd joint. 
+			 * Muss dann also nochmals ausgefÃ¼hrt werden.*/
 			npcs.get(i).claimIds(); 
 		}
 		byte[] bla = new byte[20];
-		random_nums.nextBytes(bla); // erstellt zufällige Adresse
+		random_nums.nextBytes(bla); // erstellt zufÃ¤llige Adresse
 		//chord.broadcast(new ID(bla), true);
 		ID target = new ID(bla);
 		try {
 			System.out.println(npcs.get(0).id + ":Ich schiesse auf " + target);
-			npcs.get(0).chord.retrieve(target); // 1. NPC macht Schuss auf ein zufälliges Opfer
+			npcs.get(0).chord.retrieve(target); // 1. NPC macht Schuss auf ein zufÃ¤lliges Opfer
 		} catch (ServiceException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

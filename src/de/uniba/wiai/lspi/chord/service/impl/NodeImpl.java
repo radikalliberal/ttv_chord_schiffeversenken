@@ -450,7 +450,7 @@ public final class NodeImpl extends Node {
 				// Broadcast (ID rng, ID src, ID trg, Integer trn, Boolean hit)
 				// Wenn der n√§chste Finger-table-Eintrag gr√∂√üer ist als die Range wird die initiale range genutzt
 				if(i+1 < fingertable.size() && fingertable.get(i+1).getNodeID().isInInterval(this.getNodeID(), range)) {
-					new_info =  new Broadcast(fingertable.get(i+1).getNodeID(), //neue Range ist der n‰chste Finger
+					new_info =  new Broadcast(fingertable.get(i+1).getNodeID(), //neue Range ist der n√§chste Finger
 								info.getSource(),
 								info.getTarget(),
 								info.getTransaction(),
@@ -489,7 +489,7 @@ public final class NodeImpl extends Node {
 						break;
 					}
 				}
-			} else { //NodeId ist grˆﬂer
+			} else { //NodeId ist grÔøΩÔøΩer
 				if(upperNodes.size() == 0 ) {
 					upperNodes.add(fingertable.get(i));
 				}
@@ -501,7 +501,7 @@ public final class NodeImpl extends Node {
 				}
 			}
 		}
-		upperNodes.addAll(lowerNodes); //Join upper & lower Nodes Liste beginnt mit grˆﬂeren Knoten und endet mit Knoten < this.NodeId
+		upperNodes.addAll(lowerNodes); //Join upper & lower Nodes Liste beginnt mit gr√∂√üeren Knoten und endet mit Knoten < this.NodeId
 		
 		return upperNodes;
 	}

@@ -28,6 +28,11 @@
 
 package de.uniba.wiai.lspi.chord.console.command;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Collections;
+import java.util.Enumeration;
+
 import de.uniba.wiai.lspi.chord.data.ID;
 import de.uniba.wiai.lspi.chord.data.URL;
 import de.uniba.wiai.lspi.chord.service.Chord;
@@ -96,9 +101,22 @@ public final class RemoteChordNetworkAccess {
 			}
 		});
 		URL acceptIncomingConnections = null;
+		
 		try {
-                        //determine how to obtain ip-address on linux system. see bug 1510537. sven
-			String host = java.net.InetAddress.getLocalHost().getHostAddress();
+			String host = "";
+			Enumeration<NetworkInterface> nets = java.net.NetworkInterface.getNetworkInterfaces();
+			start:
+	        for (NetworkInterface netint : Collections.list(nets)) {
+	        	for (InetAddress addr : Collections.list(netint.getInetAddresses())) {
+	        		if(!addr.isLinkLocalAddress() && !addr.isLoopbackAddress()) {
+	        			if (addr instanceof java.net.Inet4Address) { // change to Inet6Address if you prefer ip6
+	        				host = addr.getHostAddress().toString();	
+	        				break start;
+	                    }
+	        		}
+	        	}
+	        }
+			//String host = java.net.InetAddress.getLocalHost().getHostAddress();
 			if ((port <= 0) || (port >= 65536)) {
 				acceptIncomingConnections = new URL(
 						URL.KNOWN_PROTOCOLS.get(this.protocolType) + "://" + host

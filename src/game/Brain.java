@@ -1,47 +1,44 @@
 package game;
 
+import java.math.BigInteger;
+
 import de.uniba.wiai.lspi.chord.data.ID;
 import de.uniba.wiai.lspi.chord.service.Chord;
 import de.uniba.wiai.lspi.chord.service.NotifyCallback;
 
-public class Brain implements NotifyCallback {
-	
-	private ID id;
-	private Chord chord;
+public class Brain implements NotifyCallback{
+	public ID id;
+	private ID lowerBound;
+	public Chord chord;
 	
 	public Brain(Chord chordimpl) {
 		this.chord = chordimpl;
 	}
-	
-	
 
 	@Override
 	public void retrieved(ID target) {
-		// TODO: Kram machen wenn retrieve ausgeführt wurde
-		System.out.println("Es gab ein retrieve für " + target.toString());
+		// TODO Auto-generated method stub
+		System.out.println(this.id + ":Es gab ein retrieve für " + target.toString());
+		//System.out.println("Es gab ein retrieve für " + target.toString());
+		//this.broadcast(this.id, target, hit);
 	}
 
 	@Override
 	public void broadcast(ID source, ID target, Boolean hit) {
-		// TODO: Kram machen wenn Broadcast ausgeführt wurde
-		System.out.println(this.id + " hat Broadcast ausgeführt für:\nSource: " + source.toString() + "\nTarget: " + target.toString() + "\n Hit: " + hit.toString());
-		
-	}
-
-	public void setId(ID node_id) {
-		this.id = node_id;
 		// TODO Auto-generated method stub
+		System.out.println(this.id + " hat Broadcast ausgeführt für:\nSource: " + source.toString() + "\nTarget: " + target.toString() + "\n Hit: " + hit.toString());
+	}
+	
+	public void claimIds() {
+		this.id = chord.getID();
+		//Untere Schranke = ID(VorherigerKnoten)+1
+		this.lowerBound = ID.valueOf((this.chord.getPredecessorID().toBigInteger()).add(BigInteger.valueOf(1))); 
 		
 	}
 	
-	public ID getId() {
-		if(this.id != null) { 
-			return this.id;
-		} else {
-			throw new NullPointerException();
-		}
+	public boolean lowestID() {
+		ID highestId = new ID(util.hexStringToByteArray("fffffffffffffffffffffffffffffffffffffffe"));
+		return highestId.isInInterval(this.lowerBound, this.id);
 	}
-
-
-
+	
 }

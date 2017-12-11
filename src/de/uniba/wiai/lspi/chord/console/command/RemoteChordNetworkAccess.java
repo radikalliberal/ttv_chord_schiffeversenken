@@ -106,16 +106,16 @@ public final class RemoteChordNetworkAccess {
 			String host = "";
 			Enumeration<NetworkInterface> nets = java.net.NetworkInterface.getNetworkInterfaces();
 			start:
-	        for (NetworkInterface netint : Collections.list(nets)) {
-	        	for (InetAddress addr : Collections.list(netint.getInetAddresses())) {
-	        		if(!addr.isLinkLocalAddress() && !addr.isLoopbackAddress()) {
-	        			if (addr instanceof java.net.Inet4Address) { // change to Inet6Address if you prefer ip6
-	        				host = addr.getHostAddress().toString();	
-	        				break start;
-	                    }
-	        		}
-	        	}
-	        }
+			for (NetworkInterface netint : Collections.list(nets)) {
+				for (InetAddress addr : Collections.list(netint.getInetAddresses())) {
+					if(!addr.isLinkLocalAddress() && !addr.isLoopbackAddress()) {
+						if (addr instanceof java.net.Inet4Address) { // change to Inet6Address if you prefer ip6
+							host = addr.getHostAddress().toString();	
+							break start;
+			            }
+					}
+				}
+			}
 			//String host = java.net.InetAddress.getLocalHost().getHostAddress();
 			if ((port <= 0) || (port >= 65536)) {
 				acceptIncomingConnections = new URL(

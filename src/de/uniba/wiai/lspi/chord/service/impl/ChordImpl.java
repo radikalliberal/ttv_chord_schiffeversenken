@@ -1113,9 +1113,13 @@ public final class ChordImpl implements Chord, Report, AsynChord {
 	// TODO: implement this function in TTP
 	@Override
 	public void broadcast (final ID target, final Boolean hit) {
-		this.logger.debug("App called broadcast for target " + target.toString());
+		this.logger.debug("App called broadcast for target " + target.toString() + "sending with " + this.getPredecessorID());
 		try {
-			this.findSuccessor(target).broadcast(new Broadcast(target,this.findSuccessor(target).getNodeID(),target, 1, hit));
+			// 	Broadcast(ID rng, ID src, ID trg, Integer trn, Boolean hit)
+			this.localNode.broadcast(new Broadcast(this.findSuccessor(target).getNodeID(),this.getID(),target, target.toBigInteger().intValue(), hit));
+			//this.references.
+			//this.findSuccessor(target).broadcast(new Broadcast(this.findSuccessor(target),this.getID(),target, target.toBigInteger().intValue(), hit));
+			//this.findSuccessor(target).broadcast(new Broadcast(target,this.findSuccessor(target).getNodeID(),target, 1, hit));
 		} catch (CommunicationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

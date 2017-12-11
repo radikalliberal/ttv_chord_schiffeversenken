@@ -30,6 +30,7 @@ package de.uniba.wiai.lspi.chord.service.impl;
 import static de.uniba.wiai.lspi.util.logging.Logger.LogLevel.DEBUG;
 import static de.uniba.wiai.lspi.util.logging.Logger.LogLevel.INFO;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -429,40 +430,80 @@ public final class NodeImpl extends Node {
 	// TODO: implement this function in TTP
 	@Override
 	public final void broadcast(Broadcast info) throws CommunicationException {
-		ID predecessor = this.impl.getPredecessorID();
 		ID range = info.getRange();
-		ID target = info.getTarget();
-		ID source = info.getSource();
-		//sende an ale Eintr√§ge in der Fingetable die zwischen meiner ID und Range sind
+		//sende an alle Eintr√§ge in der Fingertable die zwischen meiner ID und Range sind
 		Node node = null;
-		List<Node> fingertable = this.references.getFingerTableEntries();
-		for (int i = 0; i < fingertable.size(); i++) {
-			node = fingertable.get(i);
-			if(this.getNodeID().isInInterval(source, range)) {
-				if(node.getNodeID().isInInterval(this.getNodeID(), range)) {
-					// Wenn der n√§chste Finger-table-Eintrag gr√∂√üer ist als die Range wird die initiale range genutzt
-					if(i+1 < fingertable.size() && fingertable.get(i+1).getNodeID().isInInterval(this.getNodeID(), range)) {
-						info.setRange(fingertable.get(i+1).getNodeID());
-					} else {
-						info.setRange(range);
-					}
-	
-					if (this.logger.isEnabledFor(DEBUG)) {
-						this.logger.debug("sending broadcast message to " + info.getTarget());
-					}
-					this.broadcast(info);
-				}
-				
-			}
-			if (this.logger.isEnabledFor(DEBUG)) {
-				this.logger.debug("Node " + this.getNodeID().toString() + " war nicht im Intervall und hat kein broadcast gesendet");
-			}
+		List<Node> fingertable = getSortedFingertable(this.references.getFingerTableEntries());
+		String fingers = "";
+		for(int i = 0; i < fingertable.size(); i++) {
+			fingers += i + ": " + fingertable.get(i).getNodeID().toString();
+		}
+		if (this.logger.isEnabledFor(DEBUG)) {
+			//this.logger.debug("Figertable for " + this.getNodeID() + ": " + this.references.printFingerTable().replaceAll("\n", ""));
+			this.logger.debug("Figertable for " + this.getNodeID() + ": " + fingers);
 		}
 		
+		for (int i = 0; i < fingertable.size(); i++) {
+			node = fingertable.get(i);
+			Broadcast new_info = null;
+			if(node.getNodeID().isInInterval(this.getNodeID(), range)) {
+				// Broadcast (ID rng, ID src, ID trg, Integer trn, Boolean hit)
+				// Wenn der n√§chste Finger-table-Eintrag gr√∂√üer ist als die Range wird die initiale range genutzt
+				if(i+1 < fingertable.size() && fingertable.get(i+1).getNodeID().isInInterval(this.getNodeID(), range)) {
+					new_info =  new Broadcast(fingertable.get(i+1).getNodeID(), //neue Range ist der n‰chste Finger
+								info.getSource(),
+								info.getTarget(),
+								info.getTransaction(),
+								info.getHit());
+				} else {
+					new_info =  info;
+				}
+
+				if (this.logger.isEnabledFor(DEBUG)) {
+					this.logger.debug(node.getNodeID() + " sending broadcast message further, triggered by " + this.getNodeID() + " -> " + new_info.toString());
+				}
+				node.broadcast(new_info);
+			} else {
+				if (this.logger.isEnabledFor(DEBUG)) {
+					this.logger.debug(node.getNodeID() + "not in Intervall, not sending broadcast further, range is (" + range.toString() + ")");
+				}
+			}
+		}
 		// finally inform application
 		if (this.notifyCallback != null) {
 			this.notifyCallback.broadcast(info.getSource(), info.getTarget(), info.getHit());
 		}
+	}
+	
+	private List<Node> getSortedFingertable(List<Node> fingertable){
+		List<Node> lowerNodes = new ArrayList<Node>();
+		List<Node> upperNodes = new ArrayList<Node>();
+		for(int i = 0; i < fingertable.size(); i++) {
+			if(fingertable.get(i).getNodeID().compareTo(this.getNodeID()) < 0) { //NodeID ist kleiner
+				if(lowerNodes.size() == 0 ) {
+					lowerNodes.add(fingertable.get(i));
+				}
+				for(int k = 0; k < lowerNodes.size(); k++) {
+					if(lowerNodes.get(k).getNodeID().compareTo(fingertable.get(i).getNodeID()) < 0) {
+						lowerNodes.add(k, fingertable.get(i));
+						break;
+					}
+				}
+			} else { //NodeId ist grˆﬂer
+				if(upperNodes.size() == 0 ) {
+					upperNodes.add(fingertable.get(i));
+				}
+				for(int k = 0; k < upperNodes.size(); k++) {
+					if(upperNodes.get(k).getNodeID().compareTo(fingertable.get(i).getNodeID()) > 0) {
+						upperNodes.add(k, fingertable.get(i));
+						break;
+					}
+				}
+			}
+		}
+		upperNodes.addAll(lowerNodes); //Join upper & lower Nodes Liste beginnt mit grˆﬂeren Knoten und endet mit Knoten < this.NodeId
+		
+		return upperNodes;
 	}
 
 }

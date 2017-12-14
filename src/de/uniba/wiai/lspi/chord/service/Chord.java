@@ -260,6 +260,7 @@ public interface Chord {
 			throws ServiceException;
 	
 	public abstract void broadcast (ID target, Boolean hit);
+	public abstract void broadcastAsync (ID target, Boolean hit);
 	
 	public ID getPredecessorID();
 

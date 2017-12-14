@@ -1,9 +1,8 @@
 package game;
 
-import de.uniba.wiai.lspi.chord.data.ID;
-import de.uniba.wiai.lspi.chord.service.Key;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.net.*;
+import java.util.Collections;
+import java.util.Enumeration;
 
 public class util {
 
@@ -17,27 +16,18 @@ public class util {
 	    return data;
 	}
 	
-	final static ID getHashKey(Key entry) throws NoSuchAlgorithmException {
-
-		if (entry == null) {
-			throw new IllegalArgumentException(
-					"Parameter entry must not be null!");
-		}
-		if (entry.getBytes() == null || entry.getBytes().length == 0) {
-			throw new IllegalArgumentException(
-					"Byte representation of Parameter must not be null or have length 0!");
-		}
-
-		byte[] testBytes = entry.getBytes();
-		return createID(testBytes);
-	}
-
-	private static final ID createID(byte[] testBytes) throws NoSuchAlgorithmException {
-		MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
-		synchronized (messageDigest) {
-			messageDigest.reset();
-			messageDigest.update(testBytes);
-			return new ID(messageDigest.digest());
-		}
+	public static String getIp() throws SocketException {
+	    Enumeration<NetworkInterface> nets = java.net.NetworkInterface.getNetworkInterfaces();
+	    for (NetworkInterface netint : Collections.list(nets)) {
+	        for (InetAddress addr : Collections.list(netint.getInetAddresses())) {
+	            if(!addr.isLinkLocalAddress() && !addr.isLoopbackAddress()) {
+	               // change to Inet6Address if you prefer ip6
+	                if (addr instanceof java.net.Inet4Address) { 
+	                    return addr.getHostAddress();    
+	                }
+	            }
+	        }
+	    }
+	    return null;
 	}
 }

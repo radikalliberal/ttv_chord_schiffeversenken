@@ -1,6 +1,7 @@
 package game;
 
 import java.net.MalformedURLException;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -20,7 +21,7 @@ public class Main {
 		Integer port = 40000;
 		Random random_nums = new Random();
 		List<Brain> npcs = new ArrayList<Brain>();
-		for(int i = 0; i < 20; i++) {
+		for(int i = 0; i < 5; i++) {
 			try {
 				//System.out.print(protocol.toString());
 				localURL = new URL("ocrmi://game:"+ ((Integer)(port+i)).toString() + "/") ; //Url kann beliebig sein
@@ -29,8 +30,8 @@ public class Main {
 			}
 			 URL bootstrapURL = null;
 			 try {
-				 bootstrapURL = new URL ("ocrmi://141.22.88.54:4242/"); // Diese Url wird vom Server vorgegeben
-			 } catch ( MalformedURLException e ) {
+				 bootstrapURL = new URL ("ocrmi://" + util.getIp() + ":4242/"); // Diese Url wird vom Server vorgegeben
+			 } catch ( MalformedURLException | SocketException e ) {
 				 throw new RuntimeException ( e ) ;
 			 }
 			 Chord chord = new ChordImpl();
@@ -52,11 +53,11 @@ public class Main {
 			npcs.get(i).claimIds(); 
 		}
 		
-		Thread.sleep(5000); // Warten bis fixfingers durch ist
+		Thread.sleep(40000); // Warten bis fixfingers durch ist
 		
 		byte[] bla = new byte[20];
 		random_nums.nextBytes(bla); // erstellt zufällige Adresse
-		ID target = new ID(util.hexStringToByteArray("1111111111111111111111111111111111111111")); 
+		ID target = new ID(bla); //new ID(util.hexStringToByteArray("1111111111111111111111111111111111111111")); 
 		for(int i = 0; i < npcs.size(); i++) {
 			if(npcs.get(i).lowestID()) {
 				System.out.println(npcs.get(i).id + " fängt an!");

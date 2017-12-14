@@ -448,7 +448,8 @@ public final class NodeImpl extends Node {
 			Broadcast new_info = null;
 			if(node.getNodeID().isInInterval(this.getNodeID(), range)) {
 				// Broadcast (ID rng, ID src, ID trg, Integer trn, Boolean hit)
-				// Wenn der nächste Finger-table-Eintrag größer ist als die Range wird die initiale range genutzt
+				
+				// Wenn der nächste Finger-table-Eintrag außerhalb der Range ist wird die initiale range genutzt				
 				if(i+1 < fingertable.size() && fingertable.get(i+1).getNodeID().isInInterval(this.getNodeID(), range)) {
 					new_info =  new Broadcast(fingertable.get(i+1).getNodeID(), //neue Range ist der nächste Finger
 								info.getSource(),
@@ -462,7 +463,7 @@ public final class NodeImpl extends Node {
 				if (this.logger.isEnabledFor(DEBUG)) {
 					this.logger.debug(node.getNodeID() + " sending broadcast message further, triggered by " + this.getNodeID() + " -> " + new_info.toString());
 				}
-				node.broadcast(new_info);
+				this.sendBroadcast(node, new_info);
 			} else {
 				if (this.logger.isEnabledFor(DEBUG)) {
 					this.logger.debug(node.getNodeID() + "not in Intervall, not sending broadcast further, range is (" + range.toString() + ")");
@@ -504,6 +505,23 @@ public final class NodeImpl extends Node {
 		upperNodes.addAll(lowerNodes); //Join upper & lower Nodes Liste beginnt mit größeren Knoten und endet mit Knoten < this.NodeId
 		
 		return upperNodes;
+	}
+	
+	private void sendBroadcast(final Node n, final Broadcast bc){
+		if(n != null){
+			Runnable broadcastRunner = new Runnable() {
+				
+				@Override
+				public void run() {
+					try {
+						n.broadcast(bc);
+					} catch (CommunicationException e) {
+						logger.error("Broadcast to "+n.getNodeID()+" failed!", e);
+					}
+				}
+			};
+			asyncExecutor.execute(broadcastRunner);	
+		}
 	}
 
 }

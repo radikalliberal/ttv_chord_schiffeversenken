@@ -1109,7 +1109,7 @@ public final class ChordImpl implements Chord, Report, AsynChord {
 	public ChordFuture removeAsync(Key key, Serializable entry) {
 		return ChordRemoveFuture.create(this.asyncExecutor, this, key, entry);
 	}
-	
+		
 	// TODO: implement this function in TTP
 	@Override
 	public void broadcast (final ID target, final Boolean hit) {
@@ -1122,6 +1122,15 @@ public final class ChordImpl implements Chord, Report, AsynChord {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public void broadcastAsync (final ID target, final Boolean hit) {
+		this.asyncExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				broadcast(target, hit);
+			}
+		});
 	}
 	
 	public void setCallback (NotifyCallback callback) {

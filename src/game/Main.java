@@ -52,7 +52,7 @@ public class Main {
 			npcs.get(i).claimIds(); 
 		}
 		
-		Thread.sleep(20000); // Warten bis fixfingers durch ist
+		Thread.sleep(5000); // Warten bis fixfingers durch ist
 		
 		byte[] bla = new byte[20];
 		random_nums.nextBytes(bla); // erstellt zufällige Adresse

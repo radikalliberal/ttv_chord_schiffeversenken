@@ -38,7 +38,7 @@ public class Brain extends Player implements NotifyCallback{
 	public void broadcast(ID source, ID target, Boolean hit) {
 		// TODO Auto-generated method stub
 		if(!this.idKnown(source)) {
-			this.renewLinkedList((Opponent) this.nextOpponent, new Opponent(source));
+			this.renewLinkedList(this.us.nextOpponent, new Opponent(source));
 		}
 		
 		// Todo: Hit/Miss registrieren für Opponent
@@ -56,9 +56,11 @@ public class Brain extends Player implements NotifyCallback{
 			System.out.println(this.id + ": Ich habe Predecessor " + this.chord.getPredecessorID());
 		}
 		this.intervals = this.putShips();
-		this.prevOpponent = new Opponent(this.chord.getPredecessorID());
 		this.us = new Opponent(this.id);
-		this.nextOpponent = this.us;
+		this.us.prevOpponent = new Opponent(this.chord.getPredecessorID());
+		this.us.nextOpponent = this.us.prevOpponent;
+		this.us.prevOpponent.prevOpponent = this.us;
+		this.us.prevOpponent.nextOpponent = this.us;
 		
 	}
 	
@@ -95,7 +97,7 @@ public class Brain extends Player implements NotifyCallback{
 	}
 	
 	private boolean idKnown(ID new_id) {
-		return _idKnown(this.nextOpponent, new_id);
+		return _idKnown(this.us.nextOpponent, new_id);
 	}
 	
 	boolean _idKnown(Opponent o, ID new_id) {
@@ -105,7 +107,7 @@ public class Brain extends Player implements NotifyCallback{
 		if(o.id == this.id) {
 			return false;
 		} else {
-			return _idKnown((Opponent) o.nextOpponent, new_id);
+			return _idKnown(o.nextOpponent, new_id);
 		}
 	}
 	

@@ -1,6 +1,7 @@
 package game;
 
 import java.math.BigInteger;
+import java.util.Random;
 
 import de.uniba.wiai.lspi.chord.data.ID;
 import de.uniba.wiai.lspi.chord.service.Chord;
@@ -10,6 +11,7 @@ public class Brain extends Player implements NotifyCallback{
 	public Chord chord;
 	public boolean silent;
 	private boolean[] intervals;
+	private Opponent us;
 	
 	public Brain(Chord chordimpl, boolean silent) {
 		this.chord = chordimpl;
@@ -29,7 +31,7 @@ public class Brain extends Player implements NotifyCallback{
 
 	private Boolean checkhit(ID target) {
 		// TODO Auto-generated method stub
-		return null;
+		return true;
 	}
 
 	@Override
@@ -53,43 +55,57 @@ public class Brain extends Player implements NotifyCallback{
 		if(!this.silent) {
 			System.out.println(this.id + ": Ich habe Predecessor " + this.chord.getPredecessorID());
 		}
-		//this.intervals = this.putShips();
+		this.intervals = this.putShips();
 		this.prevOpponent = new Opponent(this.chord.getPredecessorID());
-		this.nextOpponent = this;
+		this.us = new Opponent(this.id);
+		this.nextOpponent = this.us;
 		
 	}
 	
 	private boolean[] putShips() {
-		 
-		for(int i = 0; i < 10; i++) {
-			
+		boolean[] b = new boolean[200];
+		for(int i = 0; i < 100; i++) {
+			b[i] = false;
 		}
-		return null;
+		Random rand = new Random(); 
+		for(int i = 0; i < 10; i++) {
+			float num = rand.nextFloat()*100;
+			if(b[(int) num]) {
+				i--;
+			} else {
+				b[(int) num] = true;
+			}
+		}
+		return b;
 	}
 
 	private void renewLinkedList(Opponent o, Opponent newOpponent) {
 		if(newOpponent.id.isInInterval(o.id, o.nextOpponent.id)) {
-			Opponent nexto = (Opponent) o.nextOpponent;
+			Opponent nexto = o.nextOpponent;
 			o.nextOpponent = newOpponent;
 			newOpponent.nextOpponent = nexto;
 			nexto.prevOpponent = newOpponent;
 		} else {
-			renewLinkedList((Opponent) o.nextOpponent, newOpponent);
+			if(o.equals(us)) {
+				return;
+			} else {
+				renewLinkedList( o.nextOpponent, newOpponent);
+			}
 		}
 	}
 	
 	private boolean idKnown(ID new_id) {
-		return _checkOpponentId((Opponent) this.nextOpponent, new_id);
+		return _idKnown(this.nextOpponent, new_id);
 	}
 	
-	boolean _checkOpponentId(Opponent o, ID new_id) {
+	boolean _idKnown(Opponent o, ID new_id) {
 		if(new_id.equals(o.id)) {
 			return true;
 		} 
 		if(o.id == this.id) {
 			return false;
 		} else {
-			return _checkOpponentId((Opponent) o.nextOpponent, new_id);
+			return _idKnown((Opponent) o.nextOpponent, new_id);
 		}
 	}
 	

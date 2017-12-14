@@ -6,8 +6,8 @@ import de.uniba.wiai.lspi.chord.data.ID;
 
 public abstract class Player {
 	
-	public Player nextOpponent;
-	public Player prevOpponent;
+	public Opponent nextOpponent;
+	public Opponent prevOpponent;
 
 	public ID id;
 	public ID lowerBound;

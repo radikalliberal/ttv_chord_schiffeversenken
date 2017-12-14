@@ -334,7 +334,7 @@ public abstract class Endpoint {
 			}
 			Endpoint endpoint = null;
 
-			// TODO irgendwann über properties lösen
+			// TODO irgendwann Ã¼ber properties lÃ¶sen
 			if (url == null) {
 				throw new IllegalArgumentException("Url must not be null! ");
 			}

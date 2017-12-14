@@ -16,32 +16,31 @@ public class Main {
 
 	public static void main(String[] args) throws InterruptedException {
 		de.uniba.wiai.lspi.chord.service.PropertiesLoader.loadPropertyFile();
-		String protocol = URL.KNOWN_PROTOCOLS.get(URL.SOCKET_PROTOCOL);
 		URL localURL = null;
-		Integer port = 4000;
+		Integer port = 40000;
 		Random random_nums = new Random();
 		List<Brain> npcs = new ArrayList<Brain>();
 		for(int i = 0; i < 20; i++) {
 			try {
-				System.out.print(protocol.toString());
-				localURL = new URL("ocrmi://mynode:"+ ((Integer)(port+i)).toString() + "/") ; //Url kann beliebig sein
+				//System.out.print(protocol.toString());
+				localURL = new URL("ocrmi://game:"+ ((Integer)(port+i)).toString() + "/") ; //Url kann beliebig sein
 			} catch (MalformedURLException e) {
 				throw new RuntimeException ( e ) ;
 			}
 			 URL bootstrapURL = null;
 			 try {
-				 bootstrapURL = new URL ("ocrmi://127.0.1.1:4242/"); // Diese Url wird vom Server vorgegeben
+				 bootstrapURL = new URL ("ocrmi://141.22.88.54:4242/"); // Diese Url wird vom Server vorgegeben
 			 } catch ( MalformedURLException e ) {
 				 throw new RuntimeException ( e ) ;
 			 }
 			 Chord chord = new ChordImpl();
-			 Brain b = new Brain(chord);
+			 Brain b = new Brain(chord, i==109);
 			 npcs.add(b);
 			 try {
 				 // NotifyCallback bekannt machen muss geschehen bevor der Join passiert
 				 chord.setCallback(b);
 				 chord.join(localURL , bootstrapURL);
-				 System.out.println("Neuer Knoten unter ID: "+ chord.getID());
+				 //System.out.println("Neuer Knoten unter ID: "+ chord.getID());
 			 } catch (ServiceException e) {
 				 throw new RuntimeException ("Could not join DHT !", e);
 			 }
@@ -52,16 +51,25 @@ public class Main {
 			 * Muss dann also nochmals ausgeführt werden.*/
 			npcs.get(i).claimIds(); 
 		}
+		
+		Thread.sleep(20000); // Warten bis fixfingers durch ist
+		
 		byte[] bla = new byte[20];
 		random_nums.nextBytes(bla); // erstellt zufällige Adresse
-		//chord.broadcast(new ID(bla), true);
-		ID target = new ID(bla);
-		try {
-			System.out.println(npcs.get(0).id + ":Ich schiesse auf " + target);
-			npcs.get(0).chord.retrieve(target); // 1. NPC macht Schuss auf ein zufälliges Opfer
-		} catch (ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		ID target = new ID(util.hexStringToByteArray("1111111111111111111111111111111111111111")); 
+		for(int i = 0; i < npcs.size(); i++) {
+			if(npcs.get(i).lowestID()) {
+				System.out.println(npcs.get(i).id + " fängt an!");
+				try {
+					System.out.println(npcs.get(i).id + ": Ich schiesse auf " + target);
+					npcs.get(i).chord.retrieve(new ID(bla)); // Schuss auf zufälliges Ziel
+				} catch (ServiceException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				break;
+			}
+			
 		}
 	}
 }

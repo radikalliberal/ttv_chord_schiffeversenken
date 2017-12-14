@@ -1116,10 +1116,7 @@ public final class ChordImpl implements Chord, Report, AsynChord {
 		this.logger.debug("App called broadcast for target " + target.toString() + "sending with " + this.getPredecessorID());
 		try {
 			// 	Broadcast(ID rng, ID src, ID trg, Integer trn, Boolean hit)
-			this.localNode.broadcast(new Broadcast(this.findSuccessor(target).getNodeID(),this.getID(),target, target.toBigInteger().intValue(), hit));
-			//this.references.
-			//this.findSuccessor(target).broadcast(new Broadcast(this.findSuccessor(target),this.getID(),target, target.toBigInteger().intValue(), hit));
-			//this.findSuccessor(target).broadcast(new Broadcast(target,this.findSuccessor(target).getNodeID(),target, 1, hit));
+			this.localNode.broadcast(new Broadcast(this.getID(),this.getID(),target, target.toBigInteger().intValue(), hit));
 		} catch (CommunicationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

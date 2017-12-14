@@ -440,7 +440,7 @@ public final class NodeImpl extends Node {
 		}
 		if (this.logger.isEnabledFor(DEBUG)) {
 			//this.logger.debug("Figertable for " + this.getNodeID() + ": " + this.references.printFingerTable().replaceAll("\n", ""));
-			this.logger.debug("Figertable for " + this.getNodeID() + ": " + fingers);
+			this.logger.debug("Fingertable for " + this.getNodeID() + ": " + fingers);
 		}
 		
 		for (int i = 0; i < fingertable.size(); i++) {
@@ -489,7 +489,7 @@ public final class NodeImpl extends Node {
 						break;
 					}
 				}
-			} else { //NodeId ist gr��er
+			} else { //NodeId ist größer
 				if(upperNodes.size() == 0 ) {
 					upperNodes.add(fingertable.get(i));
 				}

@@ -32,6 +32,7 @@ import static de.uniba.wiai.lspi.util.logging.Logger.LogLevel.INFO;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -49,6 +50,7 @@ import de.uniba.wiai.lspi.chord.data.ID;
 import de.uniba.wiai.lspi.chord.data.URL;
 import de.uniba.wiai.lspi.chord.service.NotifyCallback;
 import de.uniba.wiai.lspi.util.logging.Logger;
+import game.util;
 
 /**
  * Implements all operations which can be invoked remotely by other nodes.
@@ -459,7 +461,6 @@ public final class NodeImpl extends Node {
 				} else {
 					new_info =  info;
 				}
-
 				if (this.logger.isEnabledFor(DEBUG)) {
 					this.logger.debug(node.getNodeID() + " sending broadcast message further, triggered by " + this.getNodeID() + " -> " + new_info.toString());
 				}
@@ -479,30 +480,56 @@ public final class NodeImpl extends Node {
 	private List<Node> getSortedFingertable(List<Node> fingertable){
 		List<Node> lowerNodes = new ArrayList<Node>();
 		List<Node> upperNodes = new ArrayList<Node>();
-		for(int i = 0; i < fingertable.size(); i++) {
-			if(fingertable.get(i).getNodeID().compareTo(this.getNodeID()) < 0) { //NodeID ist kleiner
+		
+		if (this.logger.isEnabledFor(DEBUG)) {
+			String nodes = "";
+			for (Iterator<Node> node = fingertable.iterator(); node.hasNext();) { 
+				nodes += node.next().getNodeID() + ", ";
+			}
+			this.logger.debug(this.getNodeID() + "Sorting Fingertable: " + nodes);
+		}
+		
+		while(fingertable.size() > 0) {
+			Node node = fingertable.get(0);
+			fingertable.remove(0);
+			if(node.getNodeID().compareTo(this.getNodeID()) < 0) { //NodeID ist kleiner
 				if(lowerNodes.size() == 0 ) {
-					lowerNodes.add(fingertable.get(i));
-				}
-				for(int k = 0; k < lowerNodes.size(); k++) {
-					if(lowerNodes.get(k).getNodeID().compareTo(fingertable.get(i).getNodeID()) < 0) {
-						lowerNodes.add(k, fingertable.get(i));
-						break;
+					lowerNodes.add(node);
+				}else if(node.getNodeID().compareTo(lowerNodes.get(lowerNodes.size()-1).getNodeID()) > 0) {
+					lowerNodes.add(node);
+				} else {				
+					for(int k = 0; k < lowerNodes.size(); k++) {
+						if(node.getNodeID().compareTo(lowerNodes.get(k).getNodeID()) < 0) {
+							lowerNodes.add(k, node);
+							break;
+						}
 					}
 				}
+							
 			} else { //NodeId ist größer
 				if(upperNodes.size() == 0 ) {
-					upperNodes.add(fingertable.get(i));
-				}
-				for(int k = 0; k < upperNodes.size(); k++) {
-					if(upperNodes.get(k).getNodeID().compareTo(fingertable.get(i).getNodeID()) > 0) {
-						upperNodes.add(k, fingertable.get(i));
-						break;
+					upperNodes.add(node);
+				} else if(node.getNodeID().compareTo(upperNodes.get(upperNodes.size()-1).getNodeID()) > 0) {
+					upperNodes.add(0, node);
+				} else {				
+					for(int k = 0; k < upperNodes.size(); k++) {
+						if(node.getNodeID().compareTo(upperNodes.get(k).getNodeID()) < 0) {
+							upperNodes.add(k, node);
+							break;
+						}
 					}
 				}
 			}
 		}
 		upperNodes.addAll(lowerNodes); //Join upper & lower Nodes Liste beginnt mit größeren Knoten und endet mit Knoten < this.NodeId
+		
+		if (this.logger.isEnabledFor(DEBUG)) {
+			String nodes = "";
+			for (Iterator<Node> node = upperNodes.iterator(); node.hasNext();) { 
+				nodes += node.next().getNodeID() + ", ";
+			}
+			this.logger.debug(this.getNodeID() + "Sorted Fingertable: " + nodes);
+		}
 		
 		return upperNodes;
 	}

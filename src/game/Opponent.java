@@ -54,7 +54,7 @@ public class Opponent extends Player{
 	
 	private String _printOpponents(Opponent o, String unfinishedOp) {
 		if(o.equals(this.prevOpponent)) return unfinishedOp;
-		unfinishedOp += o.nextOpponent.id.toString() + ", ";
+		unfinishedOp += o.nextOpponent.id.toString() + "| Hits: " + o.nextOpponent.hits.size() + ", Misses: " +(o.nextOpponent.shots.size()-o.nextOpponent.hits.size()) + "\n";
 		return _printOpponents(o.nextOpponent, unfinishedOp);
 	}
 	

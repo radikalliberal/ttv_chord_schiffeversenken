@@ -13,7 +13,7 @@ import de.uniba.wiai.lspi.chord.service.ServiceException;
 import de.uniba.wiai.lspi.chord.service.impl.ChordImpl;
 
 
-public class Main {
+public class Game {
 
 	public static void main(String[] args) throws InterruptedException {
 		de.uniba.wiai.lspi.chord.service.PropertiesLoader.loadPropertyFile();
@@ -21,7 +21,7 @@ public class Main {
 		Integer port = 40000;
 		Random random_nums = new Random();
 		List<Brain> npcs = new ArrayList<Brain>();
-		for(int i = 0; i < 5; i++) {
+		for(int i = 0; i < 10; i++) {
 			try {
 				//System.out.print(protocol.toString());
 				localURL = new URL("ocrmi://game:"+ ((Integer)(port+i)).toString() + "/") ; //Url kann beliebig sein

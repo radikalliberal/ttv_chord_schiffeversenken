@@ -44,8 +44,8 @@ public class Brain extends Player implements NotifyCallback{
 
 		if(this.intervals[field]) {
 			this.intervals[field] = false;
-			if(!this.silent) System.out.println(this.id + ": retrieve für " + target.toString() +" HIT!!!! ARGH!!!! (Field:" + field + ") noch " + (int)(9 - this.us.hits.size()) + " Schiffe");
-			this.chord.broadcastAsync(target, true);
+			//if(!this.silent) System.out.println(this.id + ": retrieve für " + target.toString() +" HIT!!!! ARGH!!!! (Field:" + field + ") noch " + (int)(9 - this.us.hits.size()) + " Schiffe");
+			this.chord.broadcast(target, true);
 		} else {
 			//if(!this.silent) System.out.println(this.id + ": retrieve für " + target.toString() +" Kein Hit (Field:" + field + ") noch " + (int)(10 - this.us.hits.size()) + " Schiffe");
 			this.chord.broadcast(target, false);
@@ -73,17 +73,21 @@ public class Brain extends Player implements NotifyCallback{
 			//if(!this.silent) System.out.println(this.broadcastCounter + " OpponentList: " + this.us.printOpponents());
 			//if(!this.silent) System.out.println(this.broadcastCounter + " broadcasts: " + this.us.printNumberOfOpponents());
 		}
+		
 		this.broadcastCounter++;
-		if(hit) {
-			System.out.println(this.id + ": Braodcast " + this.broadcastCounter + " von " + source);
-			Opponent o = this.us.getOpponent(source);
-			if(o == null) {
-				System.out.println(source + " ist unbekannt ? ? ? ? ");
-				System.out.println(this.us.printOpponents());
-			} else {
+		
+		Opponent o = this.us.getOpponent(source);
+		if(o == null) {
+			System.out.println(source + " ist unbekannt ? ? ? ? ");
+			System.out.println(this.us.printOpponents());
+		} else {
+			o.shots.add(target);
+			if(hit) {
+				//System.out.println(this.id + ": Braodcast " + this.broadcastCounter + " von " + source);
 				if(!o.hits.contains(target)) o.hits.add(target);
 				if(o.hits.size() == 10) {
 					System.out.println(this.id + ": " + o.id + " ist GAME OVER | Empfangene Broadcasts: " +this.broadcastCounter );
+					System.out.println(this.us.printOpponents());
 					this.gameover = true;
 					if(this.shotsTaken.contains(target)) {
 						System.out.println(this.id + ": ICH HAB GEWONNEN!!!!!");
@@ -93,7 +97,6 @@ public class Brain extends Player implements NotifyCallback{
 		}
 		
 		
-		// Todo: Hit/Miss registrieren für Opponent
 		
 		
 		//if(!this.silent) System.out.println(this.id + ": habe Broadcast ausgeführt für:\nSource: " + source.toString() + "\nTarget: " + target.toString() + "\n Hit: " + hit.toString());

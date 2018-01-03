@@ -33,11 +33,8 @@ public class Brain extends Player implements NotifyCallback{
 	public void retrieved(ID target) {
 		// TODO Auto-generated method stub
 
-		Random random_nums = new Random();
-		byte[] idbytes = new byte[20];
-		random_nums.nextBytes(idbytes);
 		int field = this.id2Field(target);
-		ID new_target = new ID(idbytes);
+		ID new_target = util.getRandomId();
 
 		//System.out.println("Es gab ein retrieve für " + target.toString());
 		 // Allen anderen Spielern erzählen ob es ein Hit war
@@ -95,10 +92,7 @@ public class Brain extends Player implements NotifyCallback{
 				}
 			}
 		}
-		
-		
-		
-		
+
 		//if(!this.silent) System.out.println(this.id + ": habe Broadcast ausgeführt für:\nSource: " + source.toString() + "\nTarget: " + target.toString() + "\n Hit: " + hit.toString());
 	}
 	

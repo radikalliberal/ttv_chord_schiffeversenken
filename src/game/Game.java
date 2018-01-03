@@ -86,17 +86,21 @@ public class Game {
 		if(mode == GameMode.REAL){
 
 			System.out.print("Start?: ");
-			String startCmd = in.next();
-			if(startCmd.equals("yes")){
-				if(npcs.get(0).lowestID()) {
-					//TODO sicherstellen das wir starten!
+			if(in.next().equals("yes")){
+				System.out.print("ID: " + npcs.get(0).chord.getID().toHexString());
+				System.out.print("Are we the lowest id?: ");
+				String manualStart = in.next();
+				if(manualStart.equals("yes")){
 					try {
 						npcs.get(0).chord.retrieve(util.getRandomId()); // Schuss auf zufälliges Ziel
 					} catch (ServiceException e) {
 						System.out.println(e);
 						System.exit(0);
 					}
+				}else if(manualStart.equals("no")){
+					System.out.println("Wait for shot in our interval.");
 				}
+
 			}else{
 				System.out.println("exit game.");
 				System.exit(0);

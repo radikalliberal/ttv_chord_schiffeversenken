@@ -16,25 +16,33 @@ import de.uniba.wiai.lspi.chord.service.impl.ChordImpl;
 
 public class Game {
 
-    final static int port = 40000;
+	enum GameMode { DEMO, REAL };
+
+	final static int port = 40000;
 	final static int chordPort = 4242;
 	static int numOfNpcs = 10;
 	final static int demoWait = 40;
+	static GameMode mode = GameMode.DEMO;
 
 	public static void main(String[] args) throws InterruptedException {
 		de.uniba.wiai.lspi.chord.service.PropertiesLoader.loadPropertyFile();
 
-		Scanner scanner = new Scanner(System.in);
+		Scanner in = new Scanner(System.in);
 		System.out.print("Game mode (demo or real): ");
-		String gameMode = scanner.next();
 
-		if(gameMode.equals("demo")){
-
+		switch(in.next()) {
+			case "real":
+				mode = GameMode.REAL;
+				numOfNpcs = 1;
+				break;
+			case "demo":
+			default:
+				mode = GameMode.DEMO;
+				numOfNpcs = 10;
+				break;
 		}
-		if(gameMode.equals("real")){
-			numOfNpcs = 1;
-		}
 
+		// im echten Spiel sind wir der einzige Npcs in unserer Liste
 		List<Brain> npcs = new ArrayList<>();
 
 		try {
@@ -43,10 +51,10 @@ public class Game {
 				URL localURL = new URL("ocrmi://game:" + (port+i) + "/") ; //Url kann beliebig sein
 				URL bootstrapURL  = new URL ("ocrmi://" + util.getIp() + ":"+chordPort+"/"); // Diese Url wird vom Server vorgegeben
 
-				if(gameMode.equals("real")){
+				if(mode == GameMode.REAL) {
 					System.out.print("Enter bootstrap ip: ");
-					String bootstrapIp = scanner.next();
-					bootstrapURL  = new URL ("ocrmi://" + bootstrapIp + ":"+chordPort+"/"); // Diese Url wird vom Server vorgegeben
+					String bootstrapIp = in.next();
+					bootstrapURL = new URL ("ocrmi://" + bootstrapIp + ":"+chordPort+"/");
 				}
 
 				 Chord chord = new ChordImpl();
@@ -75,36 +83,49 @@ public class Game {
 			System.exit(0);
 		}
 
-		if(gameMode.equals("demo")){
+		if(mode == GameMode.REAL){
+
+			System.out.print("Start?: ");
+			String startCmd = in.next();
+			if(startCmd.equals("yes")){
+				if(npcs.get(0).lowestID()) {
+					//TODO sicherstellen das wir starten!
+					try {
+						npcs.get(0).chord.retrieve(util.getRandomId()); // Schuss auf zufälliges Ziel
+					} catch (ServiceException e) {
+						System.out.println(e);
+						System.exit(0);
+					}
+				}
+			}else{
+				System.out.println("exit game.");
+				System.exit(0);
+			}
+
+		}else if(mode == GameMode.DEMO){
+
 			for (int k = demoWait; k > 0; k--) {
 				System.out.print(k);
 				Thread.sleep(1000);
 			}
 			System.out.println("start demo");
-		}
 
-		if(gameMode.equals("real")){
-			System.out.print("Start?: ");
-			String startCmd = scanner.next();
-			if(startCmd.equals("yes")){
-				//TODO start game
-			}
-		}
-
-		try {
-			ID target = util.getRandomId();
-			for(int i = 0; i < numOfNpcs; i++) {
-				if(npcs.get(i).lowestID()) {
-					System.out.println(npcs.get(i).id + " fängt an!");
-					System.out.println(npcs.get(i).id + ": Ich schiesse auf " + target);
-					npcs.get(i).chord.retrieve(target); // Schuss auf zufälliges Ziel
-					break;
+			try {
+				ID target = util.getRandomId();
+				for(int i = 0; i < numOfNpcs; i++) {
+					if(npcs.get(i).lowestID()) {
+						System.out.println(npcs.get(i).id + " fängt an!");
+						System.out.println(npcs.get(i).id + ": Ich schiesse auf " + target);
+						npcs.get(i).chord.retrieve(target); // Schuss auf zufälliges Ziel
+						break;
+					}
 				}
+			} catch (ServiceException e) {
+				System.out.println(e);
+				System.exit(0);
 			}
-		} catch (ServiceException e) {
-			System.out.println(e);
-			System.exit(0);
 		}
+
 	}
 
 }

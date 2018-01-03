@@ -37,6 +37,7 @@ public class util {
 	}
 
 	public static ID getRandomId() {
+		//TODO nicht ID aus eigenem Interval zurückgeben
 		byte[] tmp = new byte[20];
 		util.random_nums.nextBytes(tmp);
 		return new ID(tmp);

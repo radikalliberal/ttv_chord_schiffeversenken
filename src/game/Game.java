@@ -80,8 +80,8 @@ public class Game {
 				System.out.print(k);
 				Thread.sleep(1000);
 			}
+			System.out.println("start demo");
 		}
-		System.out.println("start demo");
 
 		if(gameMode.equals("real")){
 			System.out.print("Start?: ");

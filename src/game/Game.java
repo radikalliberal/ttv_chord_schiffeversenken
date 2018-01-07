@@ -49,10 +49,10 @@ public class Game {
 
 			for(int i = 0; i < numOfNpcs; i++) {
 				URL localURL = new URL("ocrmi://game:" + (port+i) + "/") ; //Url kann beliebig sein
+				System.out.println(util.getIp());
 				URL bootstrapURL  = new URL ("ocrmi://" + util.getIp() + ":"+chordPort+"/"); // Diese Url wird vom Server vorgegeben
 
 				if(mode == GameMode.REAL) {
-					System.out.print("Enter bootstrap ip: ");
 					String bootstrapIp = in.next();
 					bootstrapURL = new URL ("ocrmi://" + bootstrapIp + ":"+chordPort+"/");
 				}
@@ -86,22 +86,20 @@ public class Game {
 		if(mode == GameMode.REAL){
 
 			System.out.print("Start?: ");
-			if(in.next().equals("yes")){
+			if(in.next().equals("yes")) {
 				System.out.print("ID: " + npcs.get(0).chord.getID().toHexString());
-				System.out.print("Are we the lowest id?: ");
-				String manualStart = in.next();
-				if(manualStart.equals("yes")){
+				if (npcs.get(0).lowestID()) {
+					System.out.println("We start!");
 					try {
 						npcs.get(0).chord.retrieve(util.getRandomId()); // Schuss auf zufälliges Ziel
 					} catch (ServiceException e) {
 						System.out.println(e);
 						System.exit(0);
 					}
-				}else if(manualStart.equals("no")){
-					System.out.println("Wait for shot in our interval.");
+				} else {
+					System.out.println("We dont start! We wait until first shot hits us.");
 				}
-
-			}else{
+			} else {
 				System.out.println("exit game.");
 				System.exit(0);
 			}
@@ -109,7 +107,7 @@ public class Game {
 		}else if(mode == GameMode.DEMO){
 
 			for (int k = demoWait; k > 0; k--) {
-				System.out.print(k);
+				System.out.print(k + " ");
 				Thread.sleep(1000);
 			}
 			System.out.println("start demo");
@@ -118,7 +116,7 @@ public class Game {
 				ID target = util.getRandomId();
 				for(int i = 0; i < numOfNpcs; i++) {
 					if(npcs.get(i).lowestID()) {
-						System.out.println(npcs.get(i).id + " fängt an!");
+						System.out.println(npcs.get(i).id + " faengt an!");
 						System.out.println(npcs.get(i).id + ": Ich schiesse auf " + target);
 						npcs.get(i).chord.retrieve(target); // Schuss auf zufälliges Ziel
 						break;

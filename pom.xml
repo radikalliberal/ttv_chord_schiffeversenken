@@ -7,9 +7,15 @@
   <dependency>
     <groupId>com.mbed.java-coap</groupId>
     <artifactId>coap-core</artifactId>
-    <version>{VERSION}</version>
+    <version>4.2.0</version>
 </dependency>
   </dependencies>
+  <repositories>
+		<repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>
+  </repositories>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <resources>

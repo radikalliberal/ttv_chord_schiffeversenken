@@ -1,18 +1,24 @@
 package game;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.Scanner;
+
+import com.mbed.coap.client.CoapClient;
+import com.mbed.coap.client.CoapClientBuilder;
+import com.mbed.coap.exception.CoapException;
+import com.mbed.coap.packet.CoapPacket;
+import com.mbed.coap.packet.MediaTypes;
 
 import de.uniba.wiai.lspi.chord.data.ID;
 import de.uniba.wiai.lspi.chord.data.URL;
 import de.uniba.wiai.lspi.chord.service.Chord;
 import de.uniba.wiai.lspi.chord.service.ServiceException;
 import de.uniba.wiai.lspi.chord.service.impl.ChordImpl;
-
 
 public class Game {
 
@@ -23,13 +29,32 @@ public class Game {
 	static int numOfNpcs = 10;
 	final static int demoWait = 40;
 	static GameMode mode = GameMode.DEMO;
+	
 
-	public static void main(String[] args) throws InterruptedException {
+
+	public static void main(String[] args) throws InterruptedException, IllegalStateException, IOException, CoapException {
 		de.uniba.wiai.lspi.chord.service.PropertiesLoader.loadPropertyFile();
+		
 
 		Scanner in = new Scanner(System.in);
+		
+		
+		//coap resource / client
+		System.out.print("IP des Servers: ");
+		String HOSTIP = in.next();
+		CoapClient client = CoapClientBuilder.newBuilder(new
+		InetSocketAddress(HOSTIP,5683)).build();
+		//initial coap get
+		CoapPacket coapResp = client.resource("/s/temp").sync().get();
+		
+		//coap put
+		coapResp = client.resource("/a/relay").payload("1",
+		MediaTypes.CT_TEXT_PLAIN).sync().put();
+			    
+				
 		System.out.print("Game mode (demo or real): ");
 
+		
 		switch(in.next()) {
 			case "real":
 				mode = GameMode.REAL;
@@ -103,6 +128,9 @@ public class Game {
 				System.out.println("exit game.");
 				System.exit(0);
 			}
+			
+			//close coap connection
+			client.close();
 
 		}else if(mode == GameMode.DEMO){
 
@@ -126,6 +154,8 @@ public class Game {
 				System.out.println(e);
 				System.exit(0);
 			}
+			//close coap connection
+			client.close();
 		}
 
 	}

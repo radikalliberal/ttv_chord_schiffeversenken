@@ -32,20 +32,7 @@ public class Game {
 	final static int demoWait = 40;
 	static GameMode mode = GameMode.DEMO;
 
-//	public void changeLed(Brain npc, CoapPacket coapResp) {
-//
-//		System.out.println(npc.us.shots);
-//		// coap resource led
-//		if ((10 - npc.us.shots) == 10) {
-//			coapResp = client.resource("/PLATZHALTER").payload("g", MediaTypes.CT_TEXT_PLAIN).sync().put();
-//		} else if ((10 - npc.us.shots) < 10 && (10 - npc.us.shots) > 5) {
-//			coapResp = client.resource("/PLATZHALTER").payload("b", MediaTypes.CT_TEXT_PLAIN).sync().put();
-//		} else if ((10 - npc.us.shots) < 5 && (10 - npc.us.shots) > 0) {
-//			coapResp = client.resource("/PLATZHALTER").payload("violet", MediaTypes.CT_TEXT_PLAIN).sync().put();
-//		} else if ((10 - npc.us.shots) == 0) {
-//			coapResp = client.resource("/PLATZHALTER").payload("r", MediaTypes.CT_TEXT_PLAIN).sync().put();
-//		}
-//	}
+
 
 	public static void main(String[] args)
 			throws InterruptedException, IllegalStateException, IOException, CoapException {
@@ -53,11 +40,24 @@ public class Game {
 
 		Scanner in = new Scanner(System.in);
 
-		// coap client
+		// coap client initialisieren
 		System.out.print("IP des Servers: ");
 		String HOSTIP = in.next();
 		CoapClient client = CoapClientBuilder.newBuilder(new InetSocketAddress(HOSTIP, 5683)).build();
-		CoapPacket coapResp = client.resource("/PLATZHALTER").sync().get();
+		//CoapPacket coapResp = client.resource("/led").payload("0", MediaTypes.CT_TEXT_PLAIN).sync().put();
+		
+		// Spielerei um die LED zu testen
+//			CoapPacket CoapClient coapResp = client.resource("/led").sync().get();
+//			System.out.println(coapResp.getPayloadString());
+//			coapResp = client.resource("/led").payload("g", MediaTypes.CT_TEXT_PLAIN).sync().put();
+//			coapResp = client.resource("/led").sync().get();
+//			System.out.println(coapResp.getPayloadString());
+//			coapResp = client.resource("/led").payload("r", MediaTypes.CT_TEXT_PLAIN).sync().put();
+//			coapResp = client.resource("/led").sync().get();
+//			System.out.println(coapResp.getPayloadString());
+//			coapResp = client.resource("/led").payload("b", MediaTypes.CT_TEXT_PLAIN).sync().put();
+//			coapResp = client.resource("/led").sync().get();
+//			System.out.println(coapResp.getPayloadString());
 
 		System.out.print("Game mode (demo or real): ");
 
@@ -90,7 +90,7 @@ public class Game {
 				}
 
 				Chord chord = new ChordImpl();
-				Brain b = new Brain(chord, i == 109);
+				Brain b = new Brain(chord, i == 109, client);
 				npcs.add(b);
 
 				// NotifyCallback bekannt machen muss geschehen bevor der Join passiert

@@ -5,6 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.mbed.coap.client.CoapClient;
+import com.mbed.coap.exception.CoapException;
+import com.mbed.coap.packet.CoapPacket;
+import com.mbed.coap.packet.MediaTypes;
+
 import de.uniba.wiai.lspi.chord.data.ID;
 import de.uniba.wiai.lspi.chord.service.Chord;
 import de.uniba.wiai.lspi.chord.service.NotifyCallback;
@@ -15,18 +20,21 @@ public class Brain extends Player implements NotifyCallback{
 	public Chord chord;
 	public boolean silent;
 	private boolean[] intervals;
-	public Opponent us;
+	private Opponent us;
 	private int broadcastCounter;
 	private List<ID> shotsTaken;
 	private boolean gameover;
-
+	private CoapClient client;
+	private int hits = 0;
+ 
 	
-	public Brain(Chord chordimpl, boolean silent) {
+	public Brain(Chord chordimpl, boolean silent, CoapClient client ) {
 		this.chord = chordimpl;
 		this.silent = silent;
 		this.broadcastCounter = 0;
 		this.gameover = false;
 		this.shotsTaken = new ArrayList<ID>();
+		this.client = client;
 	}
 
 	@Override
@@ -43,6 +51,13 @@ public class Brain extends Player implements NotifyCallback{
 			this.intervals[field] = false;
 			//if(!this.silent) System.out.println(this.id + ": retrieve für " + target.toString() +" HIT!!!! ARGH!!!! (Field:" + field + ") noch " + (int)(9 - this.us.hits.size()) + " Schiffe");
 			this.chord.broadcast(target, true);
+			try {
+				this.setLed(hits);
+			} catch (CoapException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			hits++;
 		} else {
 			//if(!this.silent) System.out.println(this.id + ": retrieve für " + target.toString() +" Kein Hit (Field:" + field + ") noch " + (int)(10 - this.us.hits.size()) + " Schiffe");
 			this.chord.broadcast(target, false);
@@ -162,6 +177,21 @@ public class Brain extends Player implements NotifyCallback{
 		}
 		//System.out.println(this.id + " ships : " +s);
 		return b;
+	}
+	
+	public void setLed(int hits) throws CoapException {
+		CoapPacket coapResp;
+
+		// coap resource led
+		if ((10 - hits) == 10) {
+			coapResp = client.resource("/led").payload("g", MediaTypes.CT_TEXT_PLAIN).sync().put();
+		} else if ((10 - hits) < 10 && (10 - hits) > 5) {
+			coapResp = client.resource("/led").payload("b", MediaTypes.CT_TEXT_PLAIN).sync().put();
+		} else if ((10 - hits) < 5 && (10 - hits) > 0) {
+			coapResp = client.resource("/led").payload("violet", MediaTypes.CT_TEXT_PLAIN).sync().put();
+		} else if ((10 - hits) == 0) {
+			coapResp = client.resource("/led").payload("r", MediaTypes.CT_TEXT_PLAIN).sync().put();
+		}
 	}
 	
 	public boolean lowestID() {

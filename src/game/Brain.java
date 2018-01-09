@@ -15,7 +15,7 @@ public class Brain extends Player implements NotifyCallback{
 	public Chord chord;
 	public boolean silent;
 	private boolean[] intervals;
-	private Opponent us;
+	public Opponent us;
 	private int broadcastCounter;
 	private List<ID> shotsTaken;
 	private boolean gameover;

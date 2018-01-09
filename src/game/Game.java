@@ -22,49 +22,55 @@ import de.uniba.wiai.lspi.chord.service.impl.ChordImpl;
 
 public class Game {
 
-	enum GameMode { DEMO, REAL };
+	enum GameMode {
+		DEMO, REAL
+	};
 
 	final static int port = 40000;
 	final static int chordPort = 4242;
 	static int numOfNpcs = 10;
 	final static int demoWait = 40;
 	static GameMode mode = GameMode.DEMO;
-	
 
+//	public void changeLed(Brain npc, CoapPacket coapResp) {
+//
+//		System.out.println(npc.us.shots);
+//		// coap resource led
+//		if ((10 - npc.us.shots) == 10) {
+//			coapResp = client.resource("/PLATZHALTER").payload("g", MediaTypes.CT_TEXT_PLAIN).sync().put();
+//		} else if ((10 - npc.us.shots) < 10 && (10 - npc.us.shots) > 5) {
+//			coapResp = client.resource("/PLATZHALTER").payload("b", MediaTypes.CT_TEXT_PLAIN).sync().put();
+//		} else if ((10 - npc.us.shots) < 5 && (10 - npc.us.shots) > 0) {
+//			coapResp = client.resource("/PLATZHALTER").payload("violet", MediaTypes.CT_TEXT_PLAIN).sync().put();
+//		} else if ((10 - npc.us.shots) == 0) {
+//			coapResp = client.resource("/PLATZHALTER").payload("r", MediaTypes.CT_TEXT_PLAIN).sync().put();
+//		}
+//	}
 
-	public static void main(String[] args) throws InterruptedException, IllegalStateException, IOException, CoapException {
+	public static void main(String[] args)
+			throws InterruptedException, IllegalStateException, IOException, CoapException {
 		de.uniba.wiai.lspi.chord.service.PropertiesLoader.loadPropertyFile();
-		
 
 		Scanner in = new Scanner(System.in);
-		
-		
-		//coap resource / client
+
+		// coap client
 		System.out.print("IP des Servers: ");
 		String HOSTIP = in.next();
-		CoapClient client = CoapClientBuilder.newBuilder(new
-		InetSocketAddress(HOSTIP,5683)).build();
-		//initial coap get
-		CoapPacket coapResp = client.resource("/s/temp").sync().get();
-		
-		//coap put
-		coapResp = client.resource("/a/relay").payload("1",
-		MediaTypes.CT_TEXT_PLAIN).sync().put();
-			    
-				
+		CoapClient client = CoapClientBuilder.newBuilder(new InetSocketAddress(HOSTIP, 5683)).build();
+		CoapPacket coapResp = client.resource("/PLATZHALTER").sync().get();
+
 		System.out.print("Game mode (demo or real): ");
 
-		
-		switch(in.next()) {
-			case "real":
-				mode = GameMode.REAL;
-				numOfNpcs = 1;
-				break;
-			case "demo":
-			default:
-				mode = GameMode.DEMO;
-				numOfNpcs = 10;
-				break;
+		switch (in.next()) {
+		case "real":
+			mode = GameMode.REAL;
+			numOfNpcs = 1;
+			break;
+		case "demo":
+		default:
+			mode = GameMode.DEMO;
+			numOfNpcs = 10;
+			break;
 		}
 
 		// im echten Spiel sind wir der einzige Npcs in unserer Liste
@@ -72,49 +78,53 @@ public class Game {
 
 		try {
 
-			for(int i = 0; i < numOfNpcs; i++) {
-				URL localURL = new URL("ocrmi://game:" + (port+i) + "/") ; //Url kann beliebig sein
+			for (int i = 0; i < numOfNpcs; i++) {
+				URL localURL = new URL("ocrmi://game:" + (port + i) + "/"); // Url kann beliebig sein
 				System.out.println(util.getIp());
-				URL bootstrapURL  = new URL ("ocrmi://" + util.getIp() + ":"+chordPort+"/"); // Diese Url wird vom Server vorgegeben
+				URL bootstrapURL = new URL("ocrmi://" + util.getIp() + ":" + chordPort + "/"); // Diese Url wird vom
+																								// Server vorgegeben
 
-				if(mode == GameMode.REAL) {
+				if (mode == GameMode.REAL) {
 					String bootstrapIp = in.next();
-					bootstrapURL = new URL ("ocrmi://" + bootstrapIp + ":"+chordPort+"/");
+					bootstrapURL = new URL("ocrmi://" + bootstrapIp + ":" + chordPort + "/");
 				}
 
-				 Chord chord = new ChordImpl();
-				 Brain b = new Brain(chord, i==109);
-				 npcs.add(b);
+				Chord chord = new ChordImpl();
+				Brain b = new Brain(chord, i == 109);
+				npcs.add(b);
 
-				 // NotifyCallback bekannt machen muss geschehen bevor der Join passiert
-				 chord.setCallback(b);
-				 chord.join(localURL , bootstrapURL);
-				 //System.out.println("Neuer Knoten unter ID: "+ chord.getID());
+				// NotifyCallback bekannt machen muss geschehen bevor der Join passiert
+				chord.setCallback(b);
+				chord.join(localURL, bootstrapURL);
+				// System.out.println("Neuer Knoten unter ID: "+ chord.getID());
 			}
 
-			for(int j = 0; j < numOfNpcs; j++) {
-				/* Hier schauen wir nach welche ID wir haben und für welche untere ID
-				 * wir noch zuständig sind, das kann sich �ndern wenn noch jmd joint.
-				 * Muss dann also nochmals ausgeführt werden.*/
+			for (int j = 0; j < numOfNpcs; j++) {
+				/*
+				 * Hier schauen wir nach welche ID wir haben und für welche untere ID wir noch
+				 * zuständig sind, das kann sich �ndern wenn noch jmd joint. Muss dann also
+				 * nochmals ausgeführt werden.
+				 */
 				npcs.get(j).claimIds();
 			}
 
 		} catch (ServiceException e) {
-			 System.out.println("Could not join DHT !");
-			 System.out.println(e);
-			 System.exit(0);
-		} catch ( MalformedURLException | SocketException e ) {
+			System.out.println("Could not join DHT !");
+			System.out.println(e);
+			System.exit(0);
+		} catch (MalformedURLException | SocketException e) {
 			System.out.println(e);
 			System.exit(0);
 		}
 
-		if(mode == GameMode.REAL){
+		if (mode == GameMode.REAL) {
 
 			System.out.print("Start?: ");
-			if(in.next().equals("yes")) {
+			if (in.next().equals("yes")) {
 				System.out.print("ID: " + npcs.get(0).chord.getID().toHexString());
 				if (npcs.get(0).lowestID()) {
 					System.out.println("We start!");
+
 					try {
 						npcs.get(0).chord.retrieve(util.getRandomId()); // Schuss auf zufälliges Ziel
 					} catch (ServiceException e) {
@@ -128,11 +138,11 @@ public class Game {
 				System.out.println("exit game.");
 				System.exit(0);
 			}
-			
-			//close coap connection
+
+			// close coap connection
 			client.close();
 
-		}else if(mode == GameMode.DEMO){
+		} else if (mode == GameMode.DEMO) {
 
 			for (int k = demoWait; k > 0; k--) {
 				System.out.print(k + " ");
@@ -142,8 +152,8 @@ public class Game {
 
 			try {
 				ID target = util.getRandomId();
-				for(int i = 0; i < numOfNpcs; i++) {
-					if(npcs.get(i).lowestID()) {
+				for (int i = 0; i < numOfNpcs; i++) {
+					if (npcs.get(i).lowestID()) {
 						System.out.println(npcs.get(i).id + " faengt an!");
 						System.out.println(npcs.get(i).id + ": Ich schiesse auf " + target);
 						npcs.get(i).chord.retrieve(target); // Schuss auf zufälliges Ziel
@@ -154,7 +164,7 @@ public class Game {
 				System.out.println(e);
 				System.exit(0);
 			}
-			//close coap connection
+			// close coap connection
 			client.close();
 		}
 

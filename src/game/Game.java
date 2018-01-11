@@ -11,8 +11,6 @@ import java.util.Scanner;
 import com.mbed.coap.client.CoapClient;
 import com.mbed.coap.client.CoapClientBuilder;
 import com.mbed.coap.exception.CoapException;
-import com.mbed.coap.packet.CoapPacket;
-import com.mbed.coap.packet.MediaTypes;
 
 import de.uniba.wiai.lspi.chord.data.ID;
 import de.uniba.wiai.lspi.chord.data.URL;
@@ -40,10 +38,10 @@ public class Game {
 		Scanner in = new Scanner(System.in);
 
 		// coap client initialisieren
-		System.out.print("IP des Servers: ");
+		System.out.print("IP Coap-Server: ");
 		String HOSTIP = in.next();
 		CoapClient client = CoapClientBuilder.newBuilder(new InetSocketAddress(HOSTIP, 5683)).build();
-		CoapPacket coapResp = client.resource("/led").payload("0", MediaTypes.CT_TEXT_PLAIN).sync().put();
+		//CoapPacket coapResp = client.resource("/led").payload("0", MediaTypes.CT_TEXT_PLAIN).sync().put();
 
 		System.out.print("Game mode (demo or real): ");
 
@@ -71,6 +69,7 @@ public class Game {
 																								// Server vorgegeben
 
 				if (mode == GameMode.REAL) {
+					System.out.print("Ip des Chord-Servers: ");
 					String bootstrapIp = in.next();
 					bootstrapURL = new URL("ocrmi://" + bootstrapIp + ":" + chordPort + "/");
 				}
@@ -96,10 +95,10 @@ public class Game {
 
 		} catch (ServiceException e) {
 			System.out.println("Could not join DHT !");
-			System.out.println(e);
+			e.printStackTrace();
 			System.exit(0);
 		} catch (MalformedURLException | SocketException e) {
-			System.out.println(e);
+			e.printStackTrace();
 			System.exit(0);
 		}
 
@@ -107,7 +106,7 @@ public class Game {
 
 			System.out.print("Start?: ");
 			if (in.next().equals("yes")) {
-				System.out.print("ID: " + npcs.get(0).chord.getID().toHexString());
+				System.out.println("ID: " + npcs.get(0).chord.getID().toHexString());
 				npcs.get(0).claimIds();
 				if (npcs.get(0).lowestID()) {
 					System.out.println("We start!");
@@ -148,7 +147,7 @@ public class Game {
 			try {
 				ID target = util.getRandomId();
 				for (int i = 0; i < numOfNpcs; i++) {
-					if (true) { //npcs.get(i).lowestID()) {
+					if (npcs.get(i).lowestID()) { 
 						System.out.println(npcs.get(i).id + " faengt an!");
 						System.out.println(npcs.get(i).id + ": Ich schiesse auf " + target);
 						npcs.get(i).chord.retrieve(target); // Schuss auf zufälliges Ziel

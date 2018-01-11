@@ -16,7 +16,6 @@ public class RetrieveThread implements Runnable{
 	   public void run(){
 	      try {
 			this.brain.chord.retrieve(this.target);
-			System.out.println("RetrieveThread("+this.target.toString()+")");
 		} catch (ServiceException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

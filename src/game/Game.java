@@ -90,12 +90,18 @@ public class Game {
 				}
 
 				Chord chord = new ChordImpl();
-				Brain b = new Brain(chord, i == 109, client);
+				Brain b = new Brain(chord, i==0, client);
 				npcs.add(b);
 
 				// NotifyCallback bekannt machen muss geschehen bevor der Join passiert
 				chord.setCallback(b);
-				chord.join(localURL, bootstrapURL);
+				if(i==0) {
+					chord.create(bootstrapURL);
+				} else {
+					chord.join(localURL, bootstrapURL);
+				}
+				
+			
 				// System.out.println("Neuer Knoten unter ID: "+ chord.getID());
 			}
 
@@ -153,7 +159,7 @@ public class Game {
 			try {
 				ID target = util.getRandomId();
 				for (int i = 0; i < numOfNpcs; i++) {
-					if (npcs.get(i).lowestID()) {
+					if (true) { //npcs.get(i).lowestID()) {
 						System.out.println(npcs.get(i).id + " faengt an!");
 						System.out.println(npcs.get(i).id + ": Ich schiesse auf " + target);
 						npcs.get(i).chord.retrieve(target); // Schuss auf zufälliges Ziel

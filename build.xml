@@ -9,13 +9,6 @@
 <!-- in the project's Project Properties dialog box.-->
 <project name="open-chord" basedir=".">
     <description>Builds, tests, and runs the project open-chord.</description>
-    <import file="nbproject/build-impl.xml"/>
-	<repositories>
-		<repository>
-		    <id>jitpack.io</id>
-		    <url>https://jitpack.io</url>
-		</repository>
-	</repositories>
     <!--
 
     There exist several targets which are by default empty and which can be 

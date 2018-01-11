@@ -104,13 +104,15 @@ public class Game {
 
 		if (mode == GameMode.REAL) {
 
-			System.out.print("Start?: ");
+			System.out.print("All Players in Game?: ");
 			if (in.next().equals("yes")) {
 				System.out.println("ID: " + npcs.get(0).chord.getID().toHexString());
 				npcs.get(0).claimIds();
+				
 				if (npcs.get(0).lowestID()) {
-					System.out.println("We start!");
-
+					System.out.println("We start! write go to start");
+					while(!in.nextLine().equals("go"));
+					System.out.println("los gehts");
 					try {
 						npcs.get(0).chord.retrieve(util.getRandomId()); // Schuss auf zufälliges Ziel
 					} catch (ServiceException e) {
@@ -118,7 +120,7 @@ public class Game {
 						System.exit(0);
 					}
 				} else {
-					System.out.println("We dont start! We wait until first shot hits us.");
+					System.out.println("We dont start! Waiting until first shot hits us.");
 				}
 			} else {
 				System.out.println("exit game.");

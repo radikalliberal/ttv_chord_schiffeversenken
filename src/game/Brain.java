@@ -7,18 +7,16 @@ import java.util.Random;
 
 import com.mbed.coap.client.CoapClient;
 import com.mbed.coap.exception.CoapException;
-import com.mbed.coap.packet.CoapPacket;
 import com.mbed.coap.packet.MediaTypes;
 
 import de.uniba.wiai.lspi.chord.data.ID;
 import de.uniba.wiai.lspi.chord.service.Chord;
 import de.uniba.wiai.lspi.chord.service.NotifyCallback;
-import de.uniba.wiai.lspi.chord.service.ServiceException;
 
 public class Brain extends Player implements NotifyCallback {
 
 	public Chord chord;
-	public boolean silent;
+	public boolean debug;
 	private boolean[] intervals;
 	private Opponent us;
 	private int broadcastCounter;
@@ -27,9 +25,9 @@ public class Brain extends Player implements NotifyCallback {
 	private CoapClient client;
 	private int hits = 0;
 
-	public Brain(Chord chordimpl, boolean silent, CoapClient client) throws CoapException {
+	public Brain(Chord chordimpl, boolean debug, CoapClient client) throws CoapException {
 		this.chord = chordimpl;
-		this.silent = silent;
+		this.debug = debug;
 		this.broadcastCounter = 0;
 		this.gameover = false;
 		this.shotsTaken = new ArrayList<ID>();
@@ -37,9 +35,9 @@ public class Brain extends Player implements NotifyCallback {
 		this.setLed(hits);
 	}
 	
-	public Brain(Chord chordimpl, boolean silent){
+	public Brain(Chord chordimpl, boolean debug){
 		this.chord = chordimpl;
-		this.silent = silent;
+		this.debug = debug;
 		this.broadcastCounter = 0;
 		this.gameover = false;
 		this.shotsTaken = new ArrayList<ID>();
@@ -61,6 +59,7 @@ public class Brain extends Player implements NotifyCallback {
 			// if(!this.silent) System.out.println(this.id + ": retrieve für " +
 			// target.toString() +" HIT!!!! ARGH!!!! (Field:" + field + ") noch " + (int)(9
 			// - this.us.hits.size()) + " Schiffe");
+			if(this.debug) System.out.println(this.us.printOpponents());
 			this.chord.broadcast(target, true);
 			try {
 				this.setLed(++hits);
@@ -73,6 +72,7 @@ public class Brain extends Player implements NotifyCallback {
 			// if(!this.silent) System.out.println(this.id + ": retrieve für " +
 			// target.toString() +" Kein Hit (Field:" + field + ") noch " + (int)(10 -
 			// this.us.hits.size()) + " Schiffe");
+			if(this.debug) System.out.println(this.us.printOpponents());
 			this.chord.broadcast(target, false);
 		}
 
@@ -107,7 +107,7 @@ public class Brain extends Player implements NotifyCallback {
 		} else {
 			o.shots.add(target);
 			if (hit) {
-				System.out.println(this.id + ": Braodcast " + this.broadcastCounter + " für " + source);
+				if(this.debug) System.out.println(this.id + ": Broadcast " + this.broadcastCounter + " für " + source);
 				if (!o.hits.contains(target))
 					o.hits.add(target);
 				if (o.hits.size() == 10) {
@@ -121,7 +121,7 @@ public class Brain extends Player implements NotifyCallback {
 			}
 		}
 
-		if(!this.silent) System.out.println(this.id + ": habe Broadcast ausgeführt für:\nSource: " + source.toString() + "\nTarget: " + target.toString() + "\nHit: " + hit.toString());
+		if(this.debug) System.out.println(this.id + ": habe Broadcast ausgeführt für:\nSource: " + source.toString() + "\nTarget: " + target.toString() + "\nHit: " + hit.toString());
 	}
 
 	public void claimIds() {

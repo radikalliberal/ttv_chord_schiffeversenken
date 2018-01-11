@@ -2,3 +2,4 @@
 /bin/*
 !/bin/de/uniba/wiai/lspi/chord/com/rmi/RMIEndpoint_Stub.class
 /target/
+/bin/

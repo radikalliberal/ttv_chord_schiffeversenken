@@ -29,35 +29,21 @@ public class Game {
 	final static int port = 40000;
 	final static int chordPort = 4242;
 	static int numOfNpcs = 10;
-	final static int demoWait = 40;
+	final static int demoWait = 20;
 	static GameMode mode = GameMode.DEMO;
-
-
 
 	public static void main(String[] args)
 			throws InterruptedException, IllegalStateException, IOException, CoapException {
 		de.uniba.wiai.lspi.chord.service.PropertiesLoader.loadPropertyFile();
 
+		@SuppressWarnings("resource")
 		Scanner in = new Scanner(System.in);
 
 		// coap client initialisieren
 		System.out.print("IP des Servers: ");
 		String HOSTIP = in.next();
 		CoapClient client = CoapClientBuilder.newBuilder(new InetSocketAddress(HOSTIP, 5683)).build();
-		//CoapPacket coapResp = client.resource("/led").payload("0", MediaTypes.CT_TEXT_PLAIN).sync().put();
-		
-		// Spielerei um die LED zu testen
-//			CoapPacket CoapClient coapResp = client.resource("/led").sync().get();
-//			System.out.println(coapResp.getPayloadString());
-//			coapResp = client.resource("/led").payload("g", MediaTypes.CT_TEXT_PLAIN).sync().put();
-//			coapResp = client.resource("/led").sync().get();
-//			System.out.println(coapResp.getPayloadString());
-//			coapResp = client.resource("/led").payload("r", MediaTypes.CT_TEXT_PLAIN).sync().put();
-//			coapResp = client.resource("/led").sync().get();
-//			System.out.println(coapResp.getPayloadString());
-//			coapResp = client.resource("/led").payload("b", MediaTypes.CT_TEXT_PLAIN).sync().put();
-//			coapResp = client.resource("/led").sync().get();
-//			System.out.println(coapResp.getPayloadString());
+		CoapPacket coapResp = client.resource("/led").payload("0", MediaTypes.CT_TEXT_PLAIN).sync().put();
 
 		System.out.print("Game mode (demo or real): ");
 

@@ -36,6 +36,15 @@ public class Brain extends Player implements NotifyCallback {
 		this.client = client;
 		this.setLed(hits);
 	}
+	
+	public Brain(Chord chordimpl, boolean silent){
+		this.chord = chordimpl;
+		this.silent = silent;
+		this.broadcastCounter = 0;
+		this.gameover = false;
+		this.shotsTaken = new ArrayList<ID>();
+		this.client = null;
+	}
 
 	@Override
 	public void retrieved(ID target) {
@@ -68,22 +77,18 @@ public class Brain extends Player implements NotifyCallback {
 		}
 
 		if (!this.gameover) {
-			try {
-				this.shotsTaken.add(new_target);
-				this.chord.retrieve(new_target); // Schuss auf neues Ziel unserer Wahl -> jetzt gerade zufällig
-				// if(!this.silent) System.out.println(this.id + ": Schuss auf " +
-				// new_target.toString());
-			} catch (ServiceException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			this.shotsTaken.add(new_target);
+			RetrieveThread myRunnable = new RetrieveThread(this, new_target);
+			new Thread(myRunnable).start();				// Schuss auf neues Ziel unserer Wahl -> jetzt gerade zufällig
+			// if(!this.silent) System.out.println(this.id + ": Schuss auf " +
+			// new_target.toString());
 		}
 	}
 
 	@Override
 	public void broadcast(ID source, ID target, Boolean hit) {
 		if (!this.us.idKnown(source)) {
-			// if(!this.silent) System.out.println("AHA ein neuer Knoten:" + source);
+			//if(!this.silent) System.out.println("AHA ein neuer Knoten:" + source);
 			this.us.renewLinkedList(new Opponent(source));
 		}
 		if ((this.broadcastCounter % 10) == 0) {
@@ -102,13 +107,11 @@ public class Brain extends Player implements NotifyCallback {
 		} else {
 			o.shots.add(target);
 			if (hit) {
-				// System.out.println(this.id + ": Braodcast " + this.broadcastCounter + " von "
-				// + source);
+				System.out.println(this.id + ": Braodcast " + this.broadcastCounter + " für " + source);
 				if (!o.hits.contains(target))
 					o.hits.add(target);
 				if (o.hits.size() == 10) {
-					System.out.println(
-							this.id + ": " + o.id + " ist GAME OVER | Empfangene Broadcasts: " + this.broadcastCounter);
+					System.out.println(this.id + ": " + o.id + " ist GAME OVER | Empfangene Broadcasts: " + this.broadcastCounter);
 					System.out.println(this.us.printOpponents());
 					this.gameover = true;
 					if (this.shotsTaken.contains(target)) {
@@ -118,19 +121,14 @@ public class Brain extends Player implements NotifyCallback {
 			}
 		}
 
-		// if(!this.silent) System.out.println(this.id + ": habe Broadcast ausgeführt
-		// für:\nSource: " + source.toString() + "\nTarget: " + target.toString() + "\n
-		// Hit: " + hit.toString());
+		if(!this.silent) System.out.println(this.id + ": habe Broadcast ausgeführt für:\nSource: " + source.toString() + "\nTarget: " + target.toString() + "\nHit: " + hit.toString());
 	}
 
 	public void claimIds() {
 		this.id = chord.getID();
 		// Untere Schranke = ID(VorherigerKnoten)+1
 		this.lowerBound = ID.valueOf((this.chord.getPredecessorID().toBigInteger()).add(BigInteger.valueOf(1)));
-		if (!this.silent) {
-			if (!this.silent)
-				System.out.println(this.id + ": Ich habe Predecessor " + this.chord.getPredecessorID());
-		}
+		System.out.println(this.id + ": Ich habe Predecessor " + this.chord.getPredecessorID());
 		this.intervals = this.putShips();
 		this.us = new Opponent(this.id);
 		this.us.prevOpponent = new Opponent(this.chord.getPredecessorID());
@@ -196,9 +194,23 @@ public class Brain extends Player implements NotifyCallback {
 		// System.out.println(this.id + " ships : " +s);
 		return b;
 	}
+	/*
+	private ID field2ID(int field, Opponent o) {
+		
+		//hier aufpassen, wenn o der erste Knoten ist. 
+		if(o.prevOpponent.id.compareTo(o.id)))
+		o.lowerBound.toBigInteger()
+		
+		
+		id = ID.valueOf(BigInteger())
+		return id;
+		
+	}*/
 
 	// coap resource led
-	public void setLed(int hits) throws CoapException {
+	private void setLed(int hits) throws CoapException {
+		
+		if(this.client == null) return;
 		
 		switch(hits){
 		case 0: 

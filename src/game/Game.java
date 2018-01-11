@@ -29,7 +29,7 @@ public class Game {
 	final static int port = 40000;
 	final static int chordPort = 4242;
 	static int numOfNpcs = 10;
-	final static int demoWait = 20;
+	final static int demoWait = 40;
 	static GameMode mode = GameMode.DEMO;
 
 	public static void main(String[] args)
@@ -55,7 +55,7 @@ public class Game {
 		case "demo":
 		default:
 			mode = GameMode.DEMO;
-			numOfNpcs = 10;
+			numOfNpcs = 1;
 			break;
 		}
 
@@ -76,12 +76,13 @@ public class Game {
 				}
 
 				Chord chord = new ChordImpl();
-				Brain b = new Brain(chord, i==0, client);
+				//Brain b = new Brain(chord, i==0, client);
+				Brain b = new Brain(chord, i==0); // kein coap
 				npcs.add(b);
 
 				// NotifyCallback bekannt machen muss geschehen bevor der Join passiert
 				chord.setCallback(b);
-				if(i==0) {
+				if(i==0 && mode == GameMode.DEMO) {
 					chord.create(bootstrapURL);
 				} else {
 					chord.join(localURL, bootstrapURL);
@@ -91,14 +92,7 @@ public class Game {
 				// System.out.println("Neuer Knoten unter ID: "+ chord.getID());
 			}
 
-			for (int j = 0; j < numOfNpcs; j++) {
-				/*
-				 * Hier schauen wir nach welche ID wir haben und für welche untere ID wir noch
-				 * zuständig sind, das kann sich �ndern wenn noch jmd joint. Muss dann also
-				 * nochmals ausgeführt werden.
-				 */
-				npcs.get(j).claimIds();
-			}
+			
 
 		} catch (ServiceException e) {
 			System.out.println("Could not join DHT !");
@@ -114,6 +108,7 @@ public class Game {
 			System.out.print("Start?: ");
 			if (in.next().equals("yes")) {
 				System.out.print("ID: " + npcs.get(0).chord.getID().toHexString());
+				npcs.get(0).claimIds();
 				if (npcs.get(0).lowestID()) {
 					System.out.println("We start!");
 
@@ -141,6 +136,14 @@ public class Game {
 				Thread.sleep(1000);
 			}
 			System.out.println("start demo");
+			for (int j = 0; j < numOfNpcs; j++) {
+				/*
+				 * Hier schauen wir nach welche ID wir haben und für welche untere ID wir noch
+				 * zuständig sind, das kann sich �ndern wenn noch jmd joint. Muss dann also
+				 * nochmals ausgeführt werden.
+				 */
+				npcs.get(j).claimIds();
+			}
 
 			try {
 				ID target = util.getRandomId();

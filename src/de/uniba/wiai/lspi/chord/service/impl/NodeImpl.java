@@ -434,7 +434,6 @@ public final class NodeImpl extends Node {
 	public final void broadcast(Broadcast info) throws CommunicationException {
 		ID range = info.getRange();
 		//sende an alle Einträge in der Fingertable die zwischen meiner ID und Range sind
-		Node node = null;
 		List<Node> fingertable = getSortedFingertable(this.references.getFingerTableEntries());
 		String fingers = "";
 		for(int i = 0; i < fingertable.size(); i++) {
@@ -446,14 +445,20 @@ public final class NodeImpl extends Node {
 		}
 		
 		for (int i = 0; i < fingertable.size(); i++) {
-			node = fingertable.get(i);
+			ID first_finger = fingertable.get(i).getNodeID();
+			ID second_finger = null;
+			Node first_finger_node = fingertable.get(i);
 			Broadcast new_info = null;
-			if(node.getNodeID().isInInterval(this.getNodeID(), range)) {
+			if(first_finger.isInInterval(this.getNodeID(), range) &&
+					!first_finger.equals(info.getSource()) &&
+					!first_finger.equals(range) &&
+					!first_finger.equals(this.getNodeID())) {
 				// Broadcast (ID rng, ID src, ID trg, Integer trn, Boolean hit)
-				
-				// Wenn der nächste Finger-table-Eintrag außerhalb der Range ist wird die initiale range genutzt				
-				if(i+1 < fingertable.size() && fingertable.get(i+1).getNodeID().isInInterval(this.getNodeID(), range)) {
-					new_info =  new Broadcast(fingertable.get(i+1).getNodeID(), //neue Range ist der nächste Finger
+				if(i < fingertable.size()-1) second_finger = fingertable.get(i+1).getNodeID();
+				// Wenn der nächste Finger-table-Eintrag außerhalb der Range ist wird die initiale range genutzt	
+				if( i < fingertable.size()-1 && 
+					second_finger.isInInterval(first_finger, range)) {
+					new_info =  new Broadcast(second_finger, //neue Range ist der nächste Finger
 								info.getSource(),
 								info.getTarget(),
 								info.getTransaction(),
@@ -462,12 +467,12 @@ public final class NodeImpl extends Node {
 					new_info =  info;
 				}
 				if (this.logger.isEnabledFor(DEBUG)) {
-					this.logger.debug(node.getNodeID() + " sending broadcast message further, triggered by " + this.getNodeID() + " -> " + new_info.toString());
+					this.logger.debug(first_finger + " sending broadcast message further, triggered by " + this.getNodeID() + " -> " + new_info.toString());
 				}
-				this.sendBroadcast(node, new_info);
+				this.sendBroadcast(first_finger_node, new_info);
 			} else {
 				if (this.logger.isEnabledFor(DEBUG)) {
-					this.logger.debug(node.getNodeID() + "not in Intervall, not sending broadcast further, range is (" + range.toString() + ")");
+					this.logger.debug(first_finger + "not in Intervall, not sending broadcast further, range is (" + range.toString() + ")");
 				}
 			}
 		}

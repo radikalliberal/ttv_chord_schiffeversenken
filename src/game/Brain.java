@@ -18,6 +18,7 @@ public class Brain extends Player implements NotifyCallback {
 	public Chord chord;
 	public boolean debug;
 	private boolean[] intervals;
+	private int[] hist;
 	private Opponent us;
 	private int broadcastCounter;
 	private List<ID> shotsTaken;
@@ -33,6 +34,10 @@ public class Brain extends Player implements NotifyCallback {
 		this.shotsTaken = new ArrayList<ID>();
 		this.client = client;
 		this.setLed(hits);
+		this.hist = new int[100];
+		for(int i = 0; i < 100; i++) {
+			this.hist[i] = 0;
+		}
 	}
 	
 	public Brain(Chord chordimpl, boolean debug){
@@ -42,6 +47,10 @@ public class Brain extends Player implements NotifyCallback {
 		this.gameover = false;
 		this.shotsTaken = new ArrayList<ID>();
 		this.client = null;
+		this.hist = new int[100];
+		for(int i = 0; i < 100; i++) {
+			this.hist[i] = 0;
+		}
 	}
 
 	@Override
@@ -49,9 +58,10 @@ public class Brain extends Player implements NotifyCallback {
 		// TODO Auto-generated method stub
 
 		int field = this.id2Field(target);
+		this.hist[field] += 1;
 		ID new_target = util.getRandomId();
 
-		// System.out.println("Es gab ein retrieve für " + target.toString());
+		//System.out.println(this.id + ": Es gab ein retrieve für " + target.toString());
 		// Allen anderen Spielern erzählen ob es ein Hit war
 
 		if (this.intervals[field]) {
@@ -59,7 +69,11 @@ public class Brain extends Player implements NotifyCallback {
 			// if(!this.silent) System.out.println(this.id + ": retrieve für " +
 			// target.toString() +" HIT!!!! ARGH!!!! (Field:" + field + ") noch " + (int)(9
 			// - this.us.hits.size()) + " Schiffe");
-			if(this.debug) System.out.println(this.us.printOpponents());
+			if(!this.debug) {
+				System.out.println(this.us.printOpponents());
+				for(int i = 0; i < 100; i++) System.out.print(this.hist[i] + ",");
+				System.out.println();
+			}
 			this.chord.broadcast(target, true);
 			try {
 				this.setLed(++hits);
@@ -69,9 +83,7 @@ public class Brain extends Player implements NotifyCallback {
 			}
 
 		} else {
-			// if(!this.silent) System.out.println(this.id + ": retrieve für " +
-			// target.toString() +" Kein Hit (Field:" + field + ") noch " + (int)(10 -
-			// this.us.hits.size()) + " Schiffe");
+			//System.out.println(this.id + ": retrieve für " + target.toString() +" Kein Hit (Field:" + field + ") noch " + (int)(10 - this.us.hits.size()) + " Schiffe");			
 			if(this.debug) System.out.println(this.us.printOpponents());
 			this.chord.broadcast(target, false);
 		}
@@ -114,6 +126,9 @@ public class Brain extends Player implements NotifyCallback {
 					System.out.println(this.id + ": " + o.id + " ist GAME OVER | Empfangene Broadcasts: " + this.broadcastCounter);
 					System.out.println(this.us.printOpponents());
 					this.gameover = true;
+					for(int i = 0; i < 100; i++) System.out.print(this.hist[i] + ",");
+					System.out.println();
+					
 					if (this.shotsTaken.contains(target)) {
 						System.out.println(this.id + ": ICH HAB GEWONNEN!!!!!");
 					}

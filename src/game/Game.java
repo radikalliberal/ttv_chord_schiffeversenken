@@ -34,11 +34,11 @@ public class Game {
 	
 	/* Aufruf des Programms:
 	 * 
-	 * -chord <ip>     : Ip des Chord-Servers 
+	 * -chord <ip>     : Ip des Chord-Servers (demo mode macht einen Server unter der lokalen IP auf, alle andern müssen die IP explizit nennen)
 	 * -coap <ip>      : IP des Coap-Servers (optional)
 	 * -mode real|demo : Modi zum Debuggen und zum richtig spielen
-	 * -n <int>        : Anzahl der NPC's bei Demo-Mode
-	 * -t <int>        : Sekunden die gewartet wird bevor das Spiel startet damit sich die Fingertable einrichten können
+	 * -n <int>        : Anzahl der NPC's bei Demo-Mode (optional)
+	 * -t <int>        : Sekunden die gewartet wird bevor das Spiel startet damit sich die Fingertable einrichten können (optional)
 	 *  
 	 * java -jar game.jar -mode demo -n   // startet einen Server mit 10 Npc's
 	 * java -jar game.jar -mode real -chord <ip> // joint den server unter <ip>
@@ -118,7 +118,7 @@ public class Game {
 				if(client == null){
 					b = new Brain(chord, false, client);
 				} else {
-					b = new Brain(chord, mode.equals(GameMode.REAL)); // kein coap
+					b = new Brain(chord, true); // kein coap
 				}
 				
 				npcs.add(b);

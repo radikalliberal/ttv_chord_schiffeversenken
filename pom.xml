@@ -41,9 +41,41 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.7.0</version>
         <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
+      </plugin>
+      <plugin>
+      	<groupId>org.apache.maven.plugins</groupId>
+      	<artifactId>maven-jar-plugin</artifactId>
+      	<configuration>
+           <archive>
+               <manifest>
+                   <addClasspath>true</addClasspath>
+                   <classpathPrefix>target/classes/</classpathPrefix>
+                   <mainClass>game.Game</mainClass>
+               </manifest>
+           </archive>
+       </configuration>
+      </plugin>
+      <plugin>
+      	<groupId>org.apache.maven.plugins</groupId>
+      	<artifactId>maven-shade-plugin</artifactId>
+      	<executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>game.Game</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+         </executions>
       </plugin>
     </plugins>
   </build>

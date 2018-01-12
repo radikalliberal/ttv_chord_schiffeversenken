@@ -40,7 +40,7 @@ public class Game {
 	 * -n <int>        : Anzahl der NPC's bei Demo-Mode (optional)
 	 * -t <int>        : Sekunden die gewartet wird bevor das Spiel startet damit sich die Fingertable einrichten können (optional)
 	 *  
-	 * java -jar game.jar -mode demo -n   // startet einen Server mit 10 Npc's
+	 * java -jar game.jar -mode demo -n 10  // startet einen Server mit 10 Npc's
 	 * java -jar game.jar -mode real -chord <ip> // joint den server unter <ip>
 	 */
 

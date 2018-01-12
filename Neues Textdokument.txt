@@ -1,6 +1,0 @@
-ARO bei Anwort fehlt. Linux versteht nicht.
-
-server über consolen application starten
-
-oc > cprotocol -t ocrmi
-oc > joinN -port 4242

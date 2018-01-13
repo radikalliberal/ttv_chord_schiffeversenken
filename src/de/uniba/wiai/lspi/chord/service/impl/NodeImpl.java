@@ -457,7 +457,7 @@ public final class NodeImpl extends Node {
 				if(i < fingertable.size()-1) second_finger = fingertable.get(i+1).getNodeID();
 				// Wenn der nächste Finger-table-Eintrag außerhalb der Range ist wird die initiale range genutzt	
 				if( i < fingertable.size()-1 && 
-					second_finger.isInInterval(first_finger, range)) {
+					second_finger.isInInterval(this.getNodeID(), range)) {
 					new_info =  new Broadcast(second_finger, //neue Range ist der nächste Finger
 								info.getSource(),
 								info.getTarget(),
@@ -498,11 +498,11 @@ public final class NodeImpl extends Node {
 			Node node = fingertable.get(0);
 			fingertable.remove(0);
 			if(node.getNodeID().compareTo(this.getNodeID()) < 0) { //NodeID ist kleiner
-				if(lowerNodes.size() == 0 ) {
+				if(lowerNodes.size() == 0 ) { // Ist die Liste leer füge Knoten hinzu
 					lowerNodes.add(node);
-				}else if(node.getNodeID().compareTo(lowerNodes.get(lowerNodes.size()-1).getNodeID()) > 0) {
+				}else if(node.getNodeID().compareTo(lowerNodes.get(lowerNodes.size()-1).getNodeID()) > 0) { // Ist der Knoten größer als der größte bekannte, kommt er ans Ende 
 					lowerNodes.add(node);
-				} else {				
+				} else {				// sonst sortier ihn dort ein wo er dazwischen passt
 					for(int k = 0; k < lowerNodes.size(); k++) {
 						if(node.getNodeID().compareTo(lowerNodes.get(k).getNodeID()) < 0) {
 							lowerNodes.add(k, node);
@@ -515,7 +515,7 @@ public final class NodeImpl extends Node {
 				if(upperNodes.size() == 0 ) {
 					upperNodes.add(node);
 				} else if(node.getNodeID().compareTo(upperNodes.get(upperNodes.size()-1).getNodeID()) > 0) {
-					upperNodes.add(0, node);
+					upperNodes.add(node);
 				} else {				
 					for(int k = 0; k < upperNodes.size(); k++) {
 						if(node.getNodeID().compareTo(upperNodes.get(k).getNodeID()) < 0) {

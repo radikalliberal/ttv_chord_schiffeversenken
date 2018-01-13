@@ -50,7 +50,6 @@ import de.uniba.wiai.lspi.chord.data.ID;
 import de.uniba.wiai.lspi.chord.data.URL;
 import de.uniba.wiai.lspi.chord.service.NotifyCallback;
 import de.uniba.wiai.lspi.util.logging.Logger;
-import game.util;
 
 /**
  * Implements all operations which can be invoked remotely by other nodes.
@@ -116,7 +115,7 @@ public final class NodeImpl extends Node {
 	 * @throws IllegalArgumentException
 	 *             If any of the parameter has value <code>null</code>.
 	 */
-	NodeImpl(ChordImpl impl, ID nodeID, URL nodeURL, NotifyCallback nodeCallback, References references,
+	public NodeImpl(ChordImpl impl, ID nodeID, URL nodeURL, NotifyCallback nodeCallback, References references,
 			Entries entries) {
 		
 		if (impl == null || nodeID == null || nodeURL == null
@@ -139,6 +138,11 @@ public final class NodeImpl extends Node {
 		// create endpoint for incoming connections
 		this.myEndpoint = Endpoint.createEndpoint(this, nodeURL);
 		this.myEndpoint.listen();
+	}
+	
+	public NodeImpl(ID nodeID) {
+		this.nodeID = nodeID;
+		this.logger = Logger.getLogger(NodeImpl.class.getName() + "." + nodeID.toString());
 	}
 
 	/**
@@ -482,7 +486,7 @@ public final class NodeImpl extends Node {
 		}
 	}
 	
-	private List<Node> getSortedFingertable(List<Node> fingertable){
+	public List<Node> getSortedFingertable(List<Node> fingertable){
 		List<Node> lowerNodes = new ArrayList<Node>();
 		List<Node> upperNodes = new ArrayList<Node>();
 		

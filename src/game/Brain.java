@@ -17,9 +17,9 @@ public class Brain extends Player implements NotifyCallback {
 
 	public Chord chord;
 	public boolean debug;
-	private boolean[] intervals;
-	private int[] hist;
-	private Opponent us;
+	private boolean[] intervals; // our interval with 10 ships
+	private int[] hist; // hits on our interval
+	private Opponent us; // ring of players
 	private int broadcastCounter;
 	private List<ID> shotsTaken;
 	private boolean gameover;
@@ -53,13 +53,32 @@ public class Brain extends Player implements NotifyCallback {
 		}
 	}
 
+	public ID getBestShot() {
+		ID target = ;
+
+		Opponent enemy = this.us.prevOpponent;
+		int mostHits = -1;
+		Opponent targetEnemy = this.us.prevOpponent;
+
+		while(!enemy.equals(this.us)){
+			if(enemy.getHitCount() > mostHits){
+				targetEnemy = enemy;
+				mostHits = enemy.getHitCount();
+			}
+			enemy = enemy.prev();
+		}
+
+		return targetEnemy.getGoodShotId();
+	}
+
 	@Override
 	public void retrieved(ID target) {
 		// TODO Auto-generated method stub
 
 		int field = this.id2Field(target);
 		this.hist[field] += 1;
-		ID new_target = util.getRandomId();
+		//ID new_target = util.getRandomId();
+		ID new_target = this.getBestShot();
 
 		//System.out.println(this.id + ": Es gab ein retrieve für " + target.toString());
 		// Allen anderen Spielern erzählen ob es ein Hit war
@@ -178,8 +197,8 @@ public class Brain extends Player implements NotifyCallback {
 				} else {
 					return id.toBigInteger()
 							.add(this.lowerBound.toBigInteger().multiply(BigInteger.valueOf(-1))
-									.add(new ID(util.hexStringToByteArray("ffffffffffffffffffffffffffffffffffffffff"))
-											.toBigInteger()))
+							.add(new ID(util.hexStringToByteArray("ffffffffffffffffffffffffffffffffffffffff"))
+							.toBigInteger()))
 							.divide(fieldsize).intValue();
 				}
 			} else {
@@ -250,8 +269,7 @@ public class Brain extends Player implements NotifyCallback {
 	}
 
 	public boolean lowestID() {
-		ID highestId = new ID(util.hexStringToByteArray("fffffffffffffffffffffffffffffffffffffffe"));
-		return highestId.isInInterval(this.lowerBound, this.id);
+		return ID.valueOf(Game.maxID).isInInterval(this.lowerBound, this.id);
 	}
 
 }

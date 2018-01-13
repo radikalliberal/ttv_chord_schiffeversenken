@@ -1,6 +1,7 @@
 package game;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.SocketException;
@@ -23,6 +24,9 @@ public class Game {
 	enum GameMode {
 		DEMO, REAL
 	};
+
+    final static int numberOfFields = 100;
+    final static BigInteger maxID = new BigInteger(util.hexStringToByteArray("fffffffffffffffffffffffffffffffffffffffe"));
 
 	final static int port = 40003;
 	final static int chordPort = 4242;

@@ -9,7 +9,7 @@ public class Opponent extends Player{
 	
 	public Opponent nextOpponent;
 	public Opponent prevOpponent;
-	
+
 	public Opponent(ID id) {
 		this.id = id;
 		this.hits = new ArrayList<ID>();
@@ -31,7 +31,27 @@ public class Opponent extends Player{
 	void renewLinkedList(Opponent newOpponent) {
 		_renewLinkedList(this, newOpponent);
 	}
-	
+
+	public int getHitCount() {
+		return this.hits.size();
+	}
+
+	public ID getGoodShotId() {
+		this.update();
+
+		BigInteger tmp = this.lowerBound.toBigInteger();
+		for (int i = 0; i < 100; i++) {
+			if()
+		}
+
+	}
+
+	public void update () {
+		this.lowerBound = this.prevOpponent.id;
+		this.span = this.id.toBigInteger().subtract(BigInteger.valueOf(1)).subtract(this.estimateBorder().toBigInteger());
+		this.fieldSize = this.span.divide(BigInteger.valueOf(100));
+	}
+
 	private void _renewLinkedList(Opponent o, Opponent newOpponent) {
 		if(newOpponent.id.isInInterval(o.id, o.nextOpponent.id)) {
 			Opponent nexto = o.nextOpponent;
@@ -91,6 +111,6 @@ public class Opponent extends Player{
 		if(o.equals(this.prevOpponent)) return null;
 		else return _getOpponent(o.nextOpponent, source);
 	}
-	
-
 }
+
+

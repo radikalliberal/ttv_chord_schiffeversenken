@@ -15,18 +15,33 @@ import de.uniba.wiai.lspi.chord.service.NotifyCallback;
 
 public class Brain extends Player implements NotifyCallback {
 
-	public Chord chord;
+	public Chord chord;           // chord adapter
 	public boolean debug;
-	private boolean[] intervals;
-	private int[] hist;
-	private Opponent us;
+	private boolean[] intervals;  // unser Interval, true = Schiff
+	private int[] hist;           // Schuss Counter auf unsere Felder
+	private Opponent us;          // Alle bekannten SPieler in einer Ringstruktur
 	private int broadcastCounter;
-	private List<ID> shotsTaken;
+	private List<ID> shotsTaken;  // unsere abgefeuerten Schüsse
 	private boolean gameover;
 	private CoapClient client;
-	private int hits = 0;
+	private int hits = 0;         // Counter für LED Anzeige
 
-	Opponent rememberedOpponent = null;
+	Opponent rememberedOpponent = null;  // Bisher angegriffener Spieler
+
+	enum fieldStatus {UNKONW, HIT, MISS} // mögliche Feldstatuse
+
+	// simple Klasse zum Abbilden eines gegnerischen Intervalfeldes
+	class IntervalField {
+		ID start;
+		ID end;
+		fieldStatus status;
+
+		public IntervalField(ID start, ID end) {
+			this.start = start;
+			this.end = end;
+			this.status = fieldStatus.UNKONW;
+		}
+	}
 
 	public Brain(Chord chordimpl, boolean debug, CoapClient client) throws CoapException {
 		this.chord = chordimpl;
@@ -55,6 +70,7 @@ public class Brain extends Player implements NotifyCallback {
 		}
 	}
 
+	// Liefert zufällige ID auserhalb unseres Intervalls zurück
 	public ID getRandomId(){
 		byte[] tmp = new byte[20];
 		util.random_nums.nextBytes(tmp);
@@ -73,16 +89,14 @@ public class Brain extends Player implements NotifyCallback {
 
 	@Override
 	public void retrieved(ID target) {
-		// TODO Auto-generated method stub
-
+		// Mappe ID auf unser Feld
 		int field = this.id2Field(target);
 		this.hist[field] += 1;
+
+		// Eruiere beste Ziel ID
 		ID new_target = this.getBestKnownShot();
-//		ID new_target = this.getRandomId();
 
-		//System.out.println(this.id + ": Es gab ein retrieve für " + target.toString());
 		// Allen anderen Spielern erzählen ob es ein Hit war
-
 		if (this.intervals[field]) {
 			this.intervals[field] = false;
 			// if(!this.silent) System.out.println(this.id + ": retrieve für " +
@@ -97,7 +111,6 @@ public class Brain extends Player implements NotifyCallback {
 			try {
 				this.setLed(++hits);
 			} catch (CoapException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -107,35 +120,21 @@ public class Brain extends Player implements NotifyCallback {
 			this.chord.broadcast(target, false);
 		}
 
+		// wenn das Spiel noch nicht vorbei ist, feuer auf bestes Ziel
 		if (!this.gameover) {
 			this.shotsTaken.add(new_target);
 			RetrieveThread myRunnable = new RetrieveThread(this, new_target);
-			new Thread(myRunnable).start();				// Schuss auf neues Ziel unserer Wahl -> jetzt gerade zufällig
-			// if(!this.silent) System.out.println(this.id + ": Schuss auf " +
-			// new_target.toString());
+			new Thread(myRunnable).start();
 		}
 	}
 
-	enum fieldStatus {UNKONW, HIT, MISS}
-
-	class IntervalField {
-		ID start;
-		ID end;
-		fieldStatus status;
-
-		public IntervalField(ID start, ID end) {
-			this.start = start;
-			this.end = end;
-			this.status = fieldStatus.UNKONW;
-		}
-	}
-
+	// Liefert die angenommene mittlere ID des nächsten Intervallfeldes eines  Gegners, von dem wir noch nichts wissen (Status == unknown)
 	public ID getBestKnownShot () {
 		Opponent player = this.us.nextOpponent;
 		int minShips = 10;
 		Opponent target_player = player;
 
-		// suche spieler mit den wenigsten intakten schiffen
+		// suche Spieler mit den meisten zerstörten Schiffen
 		while(!player.id.equals(this.us.id)){
 			if(player.shipsLeft() <= minShips){
 				minShips = player.shipsLeft();
@@ -144,18 +143,17 @@ public class Brain extends Player implements NotifyCallback {
 			player = player.nextOpponent;
 		}
 
-		// falls gleich viele schiffe weg sind, behalt alten gegner
+		// erinnere Spieler, falls mehrere Spieler gleich viele zerstörte Schiffe haben, da wir bei diesem bereits viele Felder kennen
 		if(rememberedOpponent == null){
 			rememberedOpponent = target_player;
 		}
-
 		if(rememberedOpponent.shipsLeft() <= target_player.shipsLeft()){
 			target_player = rememberedOpponent;
 		} else {
 			rememberedOpponent = target_player;
 		}
 
-		// schätze intervall felder
+		// schätze Intervallfelder anhand der bekannten ID des Spielers vor ihm
 		IntervalField[] fields = new IntervalField[100];
 		BigInteger lowerBound = target_player.lowerIntervalBorder();
 		BigInteger upperBound = target_player.upperIntervalBorder();
@@ -168,7 +166,7 @@ public class Brain extends Player implements NotifyCallback {
 		BigInteger fieldSize = estimatedSpan.divide(BigInteger.valueOf(100));
 
 		for (int i = 0; i < 100; i++) {
-			// ids from start+1 and end-1 are actual valid ids of field
+			// ids from fieldStart+1 and fieldEnd-1 are actual valid ids of field, but with borders not included function isInIntveral is easier to use
 			BigInteger fieldStart = lowerBound.add(fieldSize.multiply(BigInteger.valueOf(i)));
 			BigInteger fieldEnd = fieldStart.add(fieldSize).add(BigInteger.ONE);
 
@@ -176,6 +174,7 @@ public class Brain extends Player implements NotifyCallback {
 				fieldEnd = fieldEnd.subtract(util.maxID().toBigInteger());
 			}
 
+			// letztes Feld kann größer als fieldSize sein
 			if(i >= 99){
 				fieldEnd = upperBound;
 			}
@@ -183,7 +182,7 @@ public class Brain extends Player implements NotifyCallback {
 			fields[i] = new IntervalField(ID.valueOf(fieldStart), ID.valueOf(fieldEnd));
 		}
 
-		// map hits and shots to fields
+		// map hits and misses to fields = known fields of opponent
 		for (int i = 0; i < target_player.shots.size(); i++) {
 			for (int j = 0; j < 100; j++) {
 				if(target_player.shots.get(i).isInInterval(fields[j].start, fields[j].end)){
@@ -200,7 +199,6 @@ public class Brain extends Player implements NotifyCallback {
 			}
 		}
 
-
 		// finde nächtes unbekanntes feld
 		int targetFieldNumber;
 		for (targetFieldNumber = 0; targetFieldNumber < 100; targetFieldNumber++) {
@@ -215,21 +213,16 @@ public class Brain extends Player implements NotifyCallback {
 			tmp = tmp.subtract(util.maxID().toBigInteger());
 		}
 
-		// best target id
+		// best target id = center of first unknown field of target_opponent
 		return ID.valueOf(tmp);
 	}
 
 	@Override
 	public void broadcast(ID source, ID target, Boolean hit) {
+		// wenn broadcast unbekannter herkunft, füge neuen Spieler in unseren Ring ein
 		if (!this.us.idKnown(source)) {
 			//if(!this.silent) System.out.println("AHA ein neuer Knoten:" + source);
 			this.us.renewLinkedList(new Opponent(source));
-		}
-		if ((this.broadcastCounter % 10) == 0) {
-			// if(!this.silent) System.out.println(this.broadcastCounter + " OpponentList: "
-			// + this.us.printOpponents());
-			// if(!this.silent) System.out.println(this.broadcastCounter + " broadcasts: " +
-			// this.us.printNumberOfOpponents());
 		}
 
 		this.broadcastCounter++;
@@ -239,18 +232,22 @@ public class Brain extends Player implements NotifyCallback {
 			System.out.println(source + " ist unbekannt ? ? ? ? ");
 			System.out.println(this.us.printOpponents());
 		} else {
+			// füge Schüsse zum Spieler hinzu
 			o.shots.add(target);
 			if (hit) {
 				if(this.debug) System.out.println(this.id + ": Broadcast " + this.broadcastCounter + " für " + source);
 				if (!o.hits.contains(target))
 					o.hits.add(target);
+
+				// falls Spieler 10 Treffer hat, ist das Spiel vorbei
 				if (o.hits.size() == 10) {
 					System.out.println(this.id + ": " + o.id + " ist GAME OVER | Empfangene Broadcasts: " + this.broadcastCounter);
 					System.out.println(this.us.printOpponents());
 					this.gameover = true;
 					for(int i = 0; i < 100; i++) System.out.print(this.hist[i] + ",");
 					System.out.println();
-					
+
+					// falls wir den letzten Treffer abgegeben haben, sind wir der Gewinner
 					if (this.shotsTaken.contains(target)) {
 						System.out.println(this.id + ": ICH HAB GEWONNEN!!!!!");
 					}
@@ -261,6 +258,7 @@ public class Brain extends Player implements NotifyCallback {
 		if(this.debug) System.out.println(this.id + ": habe Broadcast ausgeführt für:\nSource: " + source.toString() + "\nTarget: " + target.toString() + "\nHit: " + hit.toString());
 	}
 
+	// IDs beziehen und Spieler Ring aufbauen
 	public void claimIds() {
 		this.id = chord.getID();
 		// Untere Schranke = ID(VorherigerKnoten)+1
@@ -274,6 +272,7 @@ public class Brain extends Player implements NotifyCallback {
 		this.us.prevOpponent.nextOpponent = this.us;
 	}
 
+	// ermittelt Intervallfeld aus ID in inserem Intervall
 	int id2Field(ID id) {
 		if (!id.isInInterval(this.us.prevOpponent.id,
 				ID.valueOf((this.id.toBigInteger()).add(BigInteger.valueOf(1))))) {
@@ -310,6 +309,7 @@ public class Brain extends Player implements NotifyCallback {
 		}
 	}
 
+	// platziere Schiffe nach dem Zufall
 	private boolean[] putShips() {
 		boolean[] b = new boolean[200];
 		for (int i = 0; i < 100; i++) {
@@ -324,13 +324,9 @@ public class Brain extends Player implements NotifyCallback {
 				b[(int) num] = true;
 			}
 		}
-		// String s = "";
-		// for(int i = 0; i < 100; i++) {
-		// s += "," + Boolean.toString(b[i]) ;
-		// }
-		// System.out.println(this.id + " ships : " +s);
 		return b;
 	}
+
 	/*
 	private ID field2ID(int field, Opponent o) {
 		
@@ -371,6 +367,7 @@ public class Brain extends Player implements NotifyCallback {
 		}
 	}
 
+	// Besitzen wir die größte ID?
 	public boolean lowestID() {
 		ID highestId = new ID(util.hexStringToByteArray("fffffffffffffffffffffffffffffffffffffffe"));
 		return highestId.isInInterval(this.lowerBound, this.id);

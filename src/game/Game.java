@@ -48,7 +48,7 @@ public class Game {
 			throws InterruptedException, IllegalStateException, IOException, CoapException {
 		de.uniba.wiai.lspi.chord.service.PropertiesLoader.loadPropertyFile();
 		
-		
+		// Programmarguemnte abgreifen
 		for(int i=0; i < args.length; i++) {
 			if(args[i].equals("-coap")) { //Coap-Server-Flag
 				coapServerIp = args[++i];
@@ -72,31 +72,13 @@ public class Game {
 			}
 		}
 
+		// coap client initialisieren
 		@SuppressWarnings("resource")
 		Scanner in = new Scanner(System.in);
 		CoapClient client = null;
-		// coap client initialisieren
-		//System.out.print("IP Coap-Server: ");
-		//String HOSTIP = in.next();
 		if(coapServerIp != null) {
 			client = CoapClientBuilder.newBuilder(new InetSocketAddress(coapServerIp, 5683)).build();
 		}
-		//CoapPacket coapResp = client.resource("/led").payload("0", MediaTypes.CT_TEXT_PLAIN).sync().put();
-
-		//System.out.print("Game mode (demo or real): ");
-
-		/*
-		switch (in.next()) {
-		case "real":
-			mode = GameMode.REAL;
-			numOfNpcs = 1;
-			break;
-		case "demo":
-		default:
-			mode = GameMode.DEMO;
-			numOfNpcs = 1;
-			break;
-		}*/
 
 		// im echten Spiel sind wir der einzige Npcs in unserer Liste
 		List<Brain> npcs = new ArrayList<>();
@@ -104,15 +86,16 @@ public class Game {
 		try {
 
 			for (int i = 0; i < numOfNpcs; i++) {
+				// URLs für die Npcs zusammensetzen
 				URL localURL = new URL("ocrmi://game:" + (port + i) + "/"); // Url kann beliebig sein
 				System.out.println(util.getIp());
-				URL bootstrapURL = new URL("ocrmi://" + util.getIp() + ":" + chordPort + "/"); // Diese Url wird vom
-																								// Server vorgegeben
+				URL bootstrapURL = new URL("ocrmi://" + util.getIp() + ":" + chordPort + "/"); // Diese Url wird vom Server vorgegeben
 
 				if (mode == GameMode.REAL) {
 					bootstrapURL = new URL("ocrmi://" + bootstrapIp + ":" + chordPort + "/");
 				}
 
+				// Chord initialisieren
 				Chord chord = new ChordImpl();
 				Brain b = null;
 				if(client == null){
@@ -125,6 +108,7 @@ public class Game {
 
 				// NotifyCallback bekannt machen muss geschehen bevor der Join passiert
 				chord.setCallback(b);
+				// erster Chordnode erstellt das Netzwerk, alle weiteren joinen über diesen
 				if(i==0 && mode == GameMode.DEMO) {
 					chord.create(bootstrapURL);
 				} else {
@@ -142,11 +126,12 @@ public class Game {
 		}
 
 		if (mode == GameMode.REAL) {
-
+			// Spieler muss Start bestätigen, wenn Netzwerk bereit
 			System.out.print("All Players joined the Server?: ");
 			if (in.next().equals("yes")) {
 				System.out.println("ID: " + npcs.get(0).chord.getID().toHexString());
 				npcs.get(0).claimIds();
+				// wenn wir die größte ID im Interval haben, fangen wir an
 				if (npcs.get(0).lowestID()) {
 					System.out.println("We start! write \"go\" to start");
 					while(!in.next().equals("go"));
@@ -164,11 +149,9 @@ public class Game {
 				System.exit(0);
 			}
 
-			// close coap connection
-			
 
 		} else if (mode == GameMode.DEMO) {
-
+			// Swarte demoWait in Sekunden bis sich die Fingertable eingerichtet haben
 			for (int k = demoWait; k > 0; k--) {
 				System.out.print(k + " ");
 				Thread.sleep(1000);

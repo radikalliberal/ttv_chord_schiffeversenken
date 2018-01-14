@@ -5,9 +5,9 @@ import java.util.ArrayList;
 
 import de.uniba.wiai.lspi.chord.data.ID;
 
-public class Opponent extends Player{
+public class Opponent extends Player { // Stellt einen weiteren Gegenspieler dar
 	
-	public Opponent nextOpponent;
+	public Opponent nextOpponent; // Ringstruktur
 	public Opponent prevOpponent;
 	
 	public Opponent(ID id) {
@@ -20,10 +20,12 @@ public class Opponent extends Player{
 		return ID.valueOf((this.prevOpponent.id.toBigInteger()).add(BigInteger.valueOf(1)));
 	}
 
+	// Gibt die untere Intervallsgrenze zurück. Für isInIntervall wird die Grenze-1 gebraucht, was die ID des Spielers vor diesem ist.
 	public BigInteger lowerIntervalBorder() {
 		return this.prevOpponent.id.toBigInteger();
 	}
 
+	// Gibt die obere Intervallsgrenze zurück. Für isInIntervall wird die Grenze+1 gebraucht, was die ID des Spielers+1 ist.
 	public BigInteger upperIntervalBorder() {
 		BigInteger upperBound = this.id.toBigInteger().add(BigInteger.ONE);
 		if (ID.valueOf(upperBound).compareTo(util.maxID()) > 0){
@@ -32,6 +34,7 @@ public class Opponent extends Player{
 		return upperBound;
 	}
 
+	// Liefert intakte Schiffe zurück.
 	public int shipsLeft(){
 		return 10 - this.hits.size();
 	}
@@ -43,7 +46,8 @@ public class Opponent extends Player{
 	public float hitPercentage() {
 		return Float.NaN;
 	}
-	
+
+	// Element in Ring einfügen
 	void renewLinkedList(Opponent newOpponent) {
 		_renewLinkedList(this, newOpponent);
 	}
@@ -82,7 +86,8 @@ public class Opponent extends Player{
 		if(o.equals(this.prevOpponent)) return i;
 		return _printNumberOfOpponents(o.nextOpponent, i+1);
 	}
-	
+
+	// Ist Id im Ring bekannt?
 	boolean idKnown(ID new_id) {
 		return _idKnown(this.nextOpponent, new_id);
 	}
@@ -98,6 +103,7 @@ public class Opponent extends Player{
 		}
 	}
 
+	// Liefert Spieler Objekt aus dem Ring zurück
 	Opponent getOpponent(ID source) {
 		return _getOpponent(this, source);
 	}

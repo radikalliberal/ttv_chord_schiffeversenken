@@ -13,17 +13,13 @@ import de.uniba.wiai.lspi.chord.data.ID;
 import de.uniba.wiai.lspi.chord.service.Chord;
 import de.uniba.wiai.lspi.chord.service.NotifyCallback;
 import de.uniba.wiai.lspi.chord.service.ServiceException;
+import game.IntervalField.fieldStatus;
 
 import static game.IntervalField.fieldStatus.EMPTY;
 import static game.IntervalField.fieldStatus.SHIP;
 
 public class Brain extends Player implements NotifyCallback {
 
-    public class WrongHitId extends Exception {
-		public WrongHitId(String message) {
-			super(message);
-		}
-	}
 
 	public Chord chord;
 	private CoapClient client = null;
@@ -33,7 +29,7 @@ public class Brain extends Player implements NotifyCallback {
 	private boolean gameover;
 
 //	private boolean[] intervals; // our interval with 10 ships
-//	private int[] hist; // hits on our interval
+	private int[] hist; // hits on our interval
 //	private Opponent us; // ring of players
 //	private int broadcastCounter;
 
@@ -50,10 +46,10 @@ public class Brain extends Player implements NotifyCallback {
 
 //		this.broadcastCounter = 0;
 		this.setLed(hits);
-//		this.hist = new int[100];
-//		for(int i = 0; i < 100; i++) {
-//			this.hist[i] = 0;
-//		}
+		this.hist = new int[100];
+		for(int i = 0; i < 100; i++) {
+			this.hist[i] = 0;
+		}
 	}
 	
 	public Brain(Chord chordimpl, boolean debug){
@@ -63,6 +59,10 @@ public class Brain extends Player implements NotifyCallback {
 		this.debug = debug;
 		this.gameover = false;
 		this.shotsFired = new ArrayList<>();
+		this.hist = new int[100];
+		for(int i = 0; i < 100; i++) {
+			this.hist[i] = 0;
+		}
 
 
 	}
@@ -112,27 +112,6 @@ public class Brain extends Player implements NotifyCallback {
 		}
 	}
 
-	public boolean hit(ID hit) throws WrongHitId {
-		int j = 0;
-		for (j = 0; j < Game.numberOfFields; j++) {
-			if (hit.isInInterval(this.fields[j].start, this.fields[j].end)){
-				return this.fields[j].hit();
-			}
-		}
-
-		throw new WrongHitId("");
-	}
-
-	public int hit2field(ID hit) throws WrongHitId {
-		int j = 0;
-		for (j = 0; j < Game.numberOfFields; j++) {
-			if (hit.isInInterval(this.fields[j].start, this.fields[j].end)){
-				return j;
-			}
-		}
-
-		throw new WrongHitId("");
-	}
 
     public void startShot() {
         try {
@@ -175,7 +154,7 @@ public class Brain extends Player implements NotifyCallback {
 	public void retrieved(ID target) {
 		try {
 
-			int number = hit2field(target);
+			int number = shot2field(target);
 			StringBuilder s = new StringBuilder();
 			s.append("ANGESCHOSSEN ==================================\n");
 			s.append("MY ID: ");
@@ -190,6 +169,7 @@ public class Brain extends Player implements NotifyCallback {
 			s.append("-----------------------------------------------");
 			System.out.println(s.toString());
 
+			this.hist[this.shot2field(target)]++;
 			this.chord.broadcast(target, this.hit(target));
 
 
@@ -269,16 +249,25 @@ public class Brain extends Player implements NotifyCallback {
 			System.out.println(source + " ist unbekannt ? ? ? ? ");
 		} else if(victim instanceof Opponent){
 			((Opponent)victim).shots.add(target);
-			if (hit) {
+			try {
+				victim.fields[this.shot2field(target)].hit();
+			} catch (WrongHitId e) {
+				//e.printStackTrace();
+			}
+			if(hit){
 //				if(this.debug) System.out.println(this.id + ": Broadcast " + this.broadcastCounter + " für " + source);
 				if (!((Opponent)victim).hits.contains(target))
 					((Opponent)victim).hits.add(target);
 				if (((Opponent)victim).shipsLeft() == 0) {
-//					System.out.println(this.self.id + ": " + o.id + " ist GAME OVER | Empfangene Broadcasts: ");+ this.broadcastCounter);
-//					System.out.println(this.self.printOpponents());
+					System.out.println(this.id + ": " + victim.id + " ist GAME OVER | Empfangene Broadcasts: ");
+					//System.out.println(this.ringString());
 					this.gameover = true;
-//					for(int i = 0; i < 100; i++) System.out.print(this.hist[i] + ",");
-//					System.out.println();
+					if(this.debug) {
+						String s = "";
+						for(int i = 0; i < 99; i++) s += this.hist[i] + ",";	
+						System.out.println(s + this.hist[99]);
+					}
+					
 					
 					if (this.shotsFired.contains(target)) {
 						System.out.println(this.id + ": ICH HAB GEWONNEN!!!!!");

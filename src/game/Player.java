@@ -5,8 +5,15 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 import de.uniba.wiai.lspi.chord.data.ID;
+import game.Player.WrongHitId;
 
 public abstract class Player {
+
+    public class WrongHitId extends Exception {
+		public WrongHitId(String message) {
+			super(message);
+		}
+	}
 	public ID id;
 
 	public BigInteger span;
@@ -35,6 +42,28 @@ public abstract class Player {
 		}
 
 		return upperBound;
+	}
+
+	public int shot2field(ID hit) throws WrongHitId {
+		int j = 0;
+		for (j = 0; j < Game.numberOfFields; j++) {
+			if (hit.isInInterval(this.fields[j].start, this.fields[j].end)){
+				return j;
+			}
+		}
+
+		throw new WrongHitId(hit +" not in interval of " + this.fields[0].start + " and " + this.fields[99].end);
+	}
+	
+	public boolean hit(ID hit) throws WrongHitId {
+		int j = 0;
+		for (j = 0; j < Game.numberOfFields; j++) {
+			if (hit.isInInterval(this.fields[j].start, this.fields[j].end)){
+				return this.fields[j].hit();
+			}
+		}
+
+		throw new WrongHitId("");
 	}
 
 	// update span and field bounds

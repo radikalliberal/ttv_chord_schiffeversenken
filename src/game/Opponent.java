@@ -45,7 +45,7 @@ public class Opponent extends Player {
 		// gehe von 0 bis 100 die Felder durch und wähle das nächste Feld mit Status unbekannt.
 		int i = 0;
 		for (i = 0; i < Game.numberOfFields; i++) {
-			if(this.fields[i].status == UNKONW){
+			if(this.fields[i].status == UNKNOWN){
 				break;
 			}
 		}

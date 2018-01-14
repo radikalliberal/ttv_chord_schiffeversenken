@@ -53,13 +53,29 @@ public class Brain extends Player implements NotifyCallback {
 		}
 	}
 
+	public ID getRandomId(){
+		byte[] tmp = new byte[20];
+		util.random_nums.nextBytes(tmp);
+		ID target = new ID(tmp);
+
+		ID upper = ID.valueOf(this.id.toBigInteger().add(BigInteger.ONE));
+		ID lower = this.us.prevOpponent.id;
+
+		while(target.isInInterval(lower, upper)){
+			util.random_nums.nextBytes(tmp);
+			target = new ID(tmp);
+		}
+
+		return target;
+	}
+
 	@Override
 	public void retrieved(ID target) {
 		// TODO Auto-generated method stub
 
 		int field = this.id2Field(target);
 		this.hist[field] += 1;
-		ID new_target = util.getRandomId();
+		ID new_target = this.getRandomId();
 
 		//System.out.println(this.id + ": Es gab ein retrieve für " + target.toString());
 		// Allen anderen Spielern erzählen ob es ein Hit war

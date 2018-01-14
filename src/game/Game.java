@@ -151,7 +151,7 @@ public class Game {
 					System.out.println("We start! write \"go\" to start");
 					while(!in.next().equals("go"));
 					try {
-						npcs.get(0).chord.retrieve(util.getRandomId()); // Schuss auf zufälliges Ziel
+						npcs.get(0).chord.retrieve(npcs.get(0).getRandomId()); // Schuss auf zufälliges Ziel
 					} catch (ServiceException e) {
 						System.out.println(e);
 						System.exit(0);
@@ -184,9 +184,9 @@ public class Game {
 			}
 
 			try {
-				ID target = util.getRandomId();
 				for (int i = 0; i < numOfNpcs; i++) {
-					if (npcs.get(i).lowestID()) { 
+					if (npcs.get(i).lowestID()) {
+						ID target = npcs.get(i).getRandomId();
 						System.out.println(npcs.get(i).id + " faengt an!");
 						System.out.println(npcs.get(i).id + ": Ich schiesse auf " + target);
 						npcs.get(i).chord.retrieve(target); // Schuss auf zufälliges Ziel

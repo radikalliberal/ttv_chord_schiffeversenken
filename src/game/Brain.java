@@ -28,7 +28,7 @@ public class Brain extends Player implements NotifyCallback {
 
 	Opponent rememberedOpponent = null;  // Bisher angegriffener Spieler
 
-	enum fieldStatus {UNKONW, HIT, MISS} // mögliche Feldstatuse
+	enum fieldStatus {UNKNOWN, HIT, MISS} // mögliche Feldstatuse
 
 	// simple Klasse zum Abbilden eines gegnerischen Intervalfeldes
 	class IntervalField {
@@ -39,7 +39,7 @@ public class Brain extends Player implements NotifyCallback {
 		public IntervalField(ID start, ID end) {
 			this.start = start;
 			this.end = end;
-			this.status = fieldStatus.UNKONW;
+			this.status = fieldStatus.UNKNOWN;
 		}
 	}
 
@@ -202,7 +202,7 @@ public class Brain extends Player implements NotifyCallback {
 		// finde nächtes unbekanntes feld
 		int targetFieldNumber;
 		for (targetFieldNumber = 0; targetFieldNumber < 100; targetFieldNumber++) {
-			if(fields[targetFieldNumber].status == fieldStatus.UNKONW){
+			if(fields[targetFieldNumber].status == fieldStatus.UNKNOWN){
 				break;
 			}
 		}

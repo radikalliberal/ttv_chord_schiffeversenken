@@ -145,7 +145,13 @@ public class Brain extends Player implements NotifyCallback {
 		}
 
 		// falls gleich viele schiffe weg sind, behalt alten gegner
-		if(rememberedOpponent == null || rememberedOpponent.shipsLeft() <= target_player.shipsLeft()){
+		if(rememberedOpponent == null){
+			rememberedOpponent = target_player;
+		}
+
+		if(rememberedOpponent.shipsLeft() <= target_player.shipsLeft()){
+			target_player = rememberedOpponent;
+		} else {
 			rememberedOpponent = target_player;
 		}
 

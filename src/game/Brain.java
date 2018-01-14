@@ -26,6 +26,8 @@ public class Brain extends Player implements NotifyCallback {
 	private CoapClient client;
 	private int hits = 0;
 
+	Opponent rememberedOpponent = null;
+
 	public Brain(Chord chordimpl, boolean debug, CoapClient client) throws CoapException {
 		this.chord = chordimpl;
 		this.debug = debug;
@@ -130,16 +132,21 @@ public class Brain extends Player implements NotifyCallback {
 
 	public ID getBestKnownShot () {
 		Opponent player = this.us.nextOpponent;
-		int shipCount = 10;
+		int minShips = 10;
 		Opponent target_player = player;
 
 		// suche spieler mit den wenigsten intakten schiffen
 		while(!player.id.equals(this.us.id)){
-			if(player.hits.size() <= shipCount){
-				shipCount = player.hits.size();
+			if(player.shipsLeft() <= minShips){
+				minShips = player.shipsLeft();
 				target_player = player;
 			}
 			player = player.nextOpponent;
+		}
+
+		// falls gleich viele schiffe weg sind, behalt alten gegner
+		if(rememberedOpponent == null || rememberedOpponent.shipsLeft() <= target_player.shipsLeft()){
+			rememberedOpponent = target_player;
 		}
 
 		// schätze intervall felder

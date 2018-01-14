@@ -32,6 +32,10 @@ public class Opponent extends Player{
 		return upperBound;
 	}
 
+	public int shipsLeft(){
+		return 10 - this.hits.size();
+	}
+
 	public ID estimateBestShot() { // Das ist vielleicht eine methode die lieber in einer KI-Klasse  beheimatet sein sollte
 		return null;
 	}

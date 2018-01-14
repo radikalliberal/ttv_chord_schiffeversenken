@@ -19,11 +19,23 @@ public class Opponent extends Player{
 	public ID estimateBorder() {
 		return ID.valueOf((this.prevOpponent.id.toBigInteger()).add(BigInteger.valueOf(1)));
 	}
-	
+
+	public BigInteger lowerIntervalBorder() {
+		return this.prevOpponent.id.toBigInteger();
+	}
+
+	public BigInteger upperIntervalBorder() {
+		BigInteger upperBound = this.id.toBigInteger().add(BigInteger.ONE);
+		if (ID.valueOf(upperBound).compareTo(util.maxID()) > 0){
+			upperBound = BigInteger.ZERO;
+		}
+		return upperBound;
+	}
+
 	public ID estimateBestShot() { // Das ist vielleicht eine methode die lieber in einer KI-Klasse  beheimatet sein sollte
 		return null;
 	}
-	
+
 	public float hitPercentage() {
 		return Float.NaN;
 	}

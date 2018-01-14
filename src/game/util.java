@@ -42,4 +42,9 @@ public class util {
 		util.random_nums.nextBytes(tmp);
 		return new ID(tmp);
 	}
+
+	public static ID maxID () {
+		byte[] tmp = util.hexStringToByteArray("fffffffffffffffffffffffffffffffffffffffe");
+		return new ID(tmp);
+	}
 }

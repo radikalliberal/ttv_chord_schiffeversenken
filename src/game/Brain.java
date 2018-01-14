@@ -75,7 +75,8 @@ public class Brain extends Player implements NotifyCallback {
 
 		int field = this.id2Field(target);
 		this.hist[field] += 1;
-		ID new_target = this.getRandomId();
+		ID new_target = this.getBestKnownShot();
+//		ID new_target = this.getRandomId();
 
 		//System.out.println(this.id + ": Es gab ein retrieve für " + target.toString());
 		// Allen anderen Spielern erzählen ob es ein Hit war
@@ -111,6 +112,98 @@ public class Brain extends Player implements NotifyCallback {
 			// if(!this.silent) System.out.println(this.id + ": Schuss auf " +
 			// new_target.toString());
 		}
+	}
+
+	enum fieldStatus {UNKONW, HIT, MISS}
+
+	class IntervalField {
+		ID start;
+		ID end;
+		fieldStatus status;
+
+		public IntervalField(ID start, ID end) {
+			this.start = start;
+			this.end = end;
+			this.status = fieldStatus.UNKONW;
+		}
+	}
+
+	public ID getBestKnownShot () {
+		Opponent player = this.us.nextOpponent;
+		int shipCount = 10;
+		Opponent target_player = player;
+
+		// suche spieler mit den wenigsten intakten schiffen
+		while(!player.id.equals(this.us.id)){
+			if(player.hits.size() <= shipCount){
+				shipCount = player.hits.size();
+				target_player = player;
+			}
+			player = player.nextOpponent;
+		}
+
+		// schätze intervall felder
+		IntervalField[] fields = new IntervalField[100];
+		BigInteger lowerBound = target_player.lowerIntervalBorder();
+		BigInteger upperBound = target_player.upperIntervalBorder();
+
+		// prüfen ob über 0 gegangen wird
+		BigInteger estimatedSpan = upperBound.compareTo(lowerBound) < 0 ? util.maxID().toBigInteger().subtract(lowerBound).add(upperBound) : upperBound.subtract(lowerBound);
+
+		estimatedSpan.subtract(BigInteger.ONE); // lowerBound not part of interval
+
+		BigInteger fieldSize = estimatedSpan.divide(BigInteger.valueOf(100));
+
+		for (int i = 0; i < 100; i++) {
+			// ids from start+1 and end-1 are actual valid ids of field
+			BigInteger fieldStart = lowerBound.add(fieldSize.multiply(BigInteger.valueOf(i)));
+			BigInteger fieldEnd = fieldStart.add(fieldSize).add(BigInteger.ONE);
+
+			if(ID.valueOf(fieldEnd).compareTo(util.maxID()) > 0){
+				fieldEnd = fieldEnd.subtract(util.maxID().toBigInteger());
+			}
+
+			if(i >= 99){
+				fieldEnd = upperBound;
+			}
+
+			fields[i] = new IntervalField(ID.valueOf(fieldStart), ID.valueOf(fieldEnd));
+		}
+
+		// map hits and shots to fields
+		for (int i = 0; i < target_player.shots.size(); i++) {
+			for (int j = 0; j < 100; j++) {
+				if(target_player.shots.get(i).isInInterval(fields[j].start, fields[j].end)){
+					fields[j].status = fieldStatus.MISS;
+				}
+			}
+		}
+
+		for (int k = 0; k < target_player.hits.size(); k++) {
+			for (int l = 0; l < 100; l++) {
+				if(target_player.hits.get(k).isInInterval(fields[l].start, fields[l].end)){
+					fields[l].status = fieldStatus.HIT;
+				}
+			}
+		}
+
+
+		// finde nächtes unbekanntes feld
+		int targetFieldNumber;
+		for (targetFieldNumber = 0; targetFieldNumber < 100; targetFieldNumber++) {
+			if(fields[targetFieldNumber].status == fieldStatus.UNKONW){
+				break;
+			}
+		}
+
+		// get estimated center of target field
+		BigInteger tmp = fields[targetFieldNumber].start.toBigInteger().add(fieldSize.divide(BigInteger.valueOf(2)));
+		if(ID.valueOf(tmp).compareTo(util.maxID()) > 0){
+			tmp = tmp.subtract(util.maxID().toBigInteger());
+		}
+
+		// best target id
+		return ID.valueOf(tmp);
 	}
 
 	@Override

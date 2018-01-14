@@ -2,6 +2,7 @@ package game;
 
 import de.uniba.wiai.lspi.chord.data.ID;
 
+import java.math.BigInteger;
 import java.net.*;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -19,6 +20,18 @@ public class util {
 					+ Character.digit(s.charAt(i + 1), 16));
 		}
 		return data;
+	}
+
+	public static ID maxID () {
+		byte[] tmp = new byte[20];
+		tmp = util.hexStringToByteArray("fffffffffffffffffffffffffffffffffffffffe");
+		return new ID(tmp);
+	}
+
+	public static ID maxAdress () {
+		byte[] tmp = new byte[20];
+		tmp = util.hexStringToByteArray("ffffffffffffffffffffffffffffffffffffffff");
+		return new ID(tmp);
 	}
 
 	public static String getIp() throws SocketException {

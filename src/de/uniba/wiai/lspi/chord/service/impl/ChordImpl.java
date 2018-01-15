@@ -199,7 +199,6 @@ public final class ChordImpl implements Chord, Report, AsynChord {
 	
 	private NotifyCallback localCallback;
 	
-	private Integer transactID;
 
 	/* constructor */
 
@@ -218,7 +217,7 @@ public final class ChordImpl implements Chord, Report, AsynChord {
 				ChordImpl.ASYNC_CALL_THREADS, new ChordThreadFactory(
 						"AsynchronousExecution"));
 		this.hashFunction = HashFunction.getHashFunction();
-		this.transactID = 0;
+
 		logger.info("ChordImpl initialized!");
 	}
 
@@ -1120,7 +1119,8 @@ public final class ChordImpl implements Chord, Report, AsynChord {
 		this.logger.debug("App called broadcast for target " + target.toString() + "sending with " + this.getPredecessorID());
 		try {
 			// 	Broadcast(ID rng, ID src, ID trg, Integer trn, Boolean hit)
-			this.localNode.broadcast(new Broadcast(this.getID(),this.getID(),target, this.transactID++, hit));
+            this.localNode.transactID++;
+			this.localNode.broadcast(new Broadcast(this.getID(),this.getID(),target, this.localNode.transactID, hit));
 		} catch (CommunicationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

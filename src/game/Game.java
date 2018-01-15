@@ -92,7 +92,11 @@ public class Game {
 				URL bootstrapURL = new URL("ocrmi://" + util.getIp() + ":" + chordPort + "/"); // Diese Url wird vom Server vorgegeben
 
 				if (mode == GameMode.REAL) {
-					bootstrapURL = new URL("ocrmi://" + bootstrapIp + ":" + chordPort + "/");
+//					bootstrapURL = new URL("ocrmi://" + bootstrapIp + ":" + chordPort + "/");
+					localURL = new URL(URL.KNOWN_PROTOCOLS.get(URL.SOCKET_PROTOCOL) + "://" + util.getIp() + "/");
+					bootstrapURL = new URL(URL.KNOWN_PROTOCOLS.get(URL.SOCKET_PROTOCOL) + "://" + bootstrapIp + "/");
+					System.out.println("local url: " + localURL.toString());
+					System.out.println("bootstrap url: " + bootstrapURL.toString());
 				}
 
 				// Chord initialisieren

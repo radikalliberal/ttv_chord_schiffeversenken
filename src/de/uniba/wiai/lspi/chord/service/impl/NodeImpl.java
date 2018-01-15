@@ -95,7 +95,9 @@ public final class NodeImpl extends Node {
 	 * this node.
 	 */
 	private Executor asyncExecutor;
-	
+
+	public int transactID = 0;
+
 	private Lock notifyLock; 
 
 	/**
@@ -436,6 +438,13 @@ public final class NodeImpl extends Node {
 	// TODO: implement this function in TTP
 	@Override
 	public final void broadcast(Broadcast info) throws CommunicationException {
+
+        int tid = info.getTransaction();
+
+        if(this.transactID < tid){
+            this.transactID = tid;
+        }
+
 		ID range = info.getRange();
 		//sende an alle Einträge in der Fingertable die zwischen meiner ID und Range sind
 		List<Node> fingertable = getSortedFingertable(this.references.getFingerTableEntries());
@@ -447,7 +456,7 @@ public final class NodeImpl extends Node {
 			//this.logger.debug("Figertable for " + this.getNodeID() + ": " + this.references.printFingerTable().replaceAll("\n", ""));
 			this.logger.debug("Fingertable for " + this.getNodeID() + ": " + fingers);
 		}
-		
+
 		for (int i = 0; i < fingertable.size(); i++) {
 			ID first_finger = fingertable.get(i).getNodeID();
 			ID second_finger = null;
